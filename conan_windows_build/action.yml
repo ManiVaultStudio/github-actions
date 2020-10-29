@@ -32,7 +32,8 @@ runs:
   steps:
     - name: Install conan & build configuration
       run: |
-        pip install conan==1.26.1
+        pip install -I 'conan==1.26.1'
+        conan --version
         pip install conan_package_tools bincrafters_package_tools
         pip install -Iv cmake>=3.17
         echo CMake version:

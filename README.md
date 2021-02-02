@@ -10,10 +10,12 @@ Basic [workflow templates](https://docs.github.com/en/free-pro-team@latest/actio
 For more information see [the background info section.](background-information-for-the-actions-system)
 
 ## Security
-Malicious code in common actions could have serious consequences for the integrity of repo code.
+~~Malicious code in common actions could have serious consequences for the integrity of repo code.
 For that reason this repository shall be kept readonly except for CI/CD maintainers. In this case follow
 the [read-only usage example](common-actions-is-read-only). (Not this was changed from the original private
-strategy it permits simpler application of the actions.)
+strategy it permits simpler application of the actions.)~~
+
+Currently it is not possible to direct an action to a private repo.Consider using https://github.com/marketplace/actions/private-actions-checkout as an alternative to the [private option](common-actions-is-private) below
 
 ## Using common-actions
 

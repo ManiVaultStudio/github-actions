@@ -2,77 +2,101 @@ name: 'Common cmake steps'
 description: 'Encapsulate cmake composite run steps that are common for Windows, Linux and Mac'
 # reference https://docs.github.com/en/free-pro-team@latest/actions/creating-actions/creating-a-composite-run-steps-action
 inputs:
-  conan-package:
-    description: 'Just the package name <package> in the reference below'
-    required: True
-  conan-reference:
-    description: 'The conan reference that will be built - i.e. <package>/version@<user>/<channel>'
-    required: True
-  conan-visual-version: 
+  conan-visual-version:
     description: 'MSVC version: 15, 16 represent msvc-2017 or msvc-2019'
     required: true
-  conan-visual-runtime: 
+  conan-visual-runtime:
     description: 'MD or MDd'
     required: true
   conan-build-type:
     description: 'Debug or Release'
     required: true
-  conan-user:  
+  conan-user:
     description: 'pass secrets.LKEB_ARTIFACTORY_USER'
     required: true
-  conan-password: 
+  conan-password:
     description: 'pass secrets.LKEB_ARTIFACTORY_PASSWORD'
     required: true
-  conan-pem: 
+  conan-pem:
     description: 'pass secrets.LKEB_CERT_CHAIN'
+    required: true
+  rs_ssh_key:
+    description: 'pass secrets.RULESSUPPORT_DEPLOY_KEY'
     required: true
 
 runs:
   using: "composite"
   steps:
+    - name: setup ssh key for rules_support deploy
+      # The choco install is needed for windows-2016.
+      # For windows-2019 the ssh-agent is apparently present
+      # and just needs to be started.
+      run: |
+          choco install --no-progress -my openssh --params '"/SSHAgentFeature"'
+          refreshenv
+          Write-Output 'Starting ssh-agent service...'
+          Get-Service -Name 'ssh-agent' | Set-Service -StartupType Manual
+          Start-Service -Name 'ssh-agent'
+          New-Item -ItemType Directory -Force -Path '~/.ssh' *>$null
+          $env:RS_SSH_KEY | &ssh-add -
+          &ssh-keyscan -H "$(
+            @($env:SSH_HOST) + (Resolve-DnsName $env:SSH_HOST).IPAddress -Join ','
+          )" | Add-Content '~/.ssh/known_hosts'
+      shell: powershell
+      env:
+        RS_SSH_KEY: ${{ inputs.rs_ssh_key }}
+        SSH_HOST: github.com
+
     - name: Install conan & build configuration
       run: |
-        pip install wheel
-        pip install pysqlite3
-        pip install -I 'conan==1.26.1'
-        conan --version
+        pip install conan
         pip install conan_package_tools bincrafters_package_tools
         pip install -Iv cmake>=3.17
+        pip install gitpython
+        pip install git+ssh://git@github.com/hdps/rulessupport.git@master
+
+        REM Fish the package name from the conanfile.py
+        conan inspect -j __props__.json -a name conanfile.py
+        for /f "delims=" %%a in ('powershell -Command "foreach ($Line in (Get-Content -Raw __props__.json | ConvertFrom-Json)) { Write-Host $Line.Name}"') do set PACKAGE_NAME=%%a
+
         echo CMake version:
         cmake --version
         for /f "delims=" %%i in ('where cmake') do set CONAN_CMAKE_PROGRAM="%%i"
         set CONAN_USER_HOME=%cd%\_conan
+        set VS160COMNTOOLS="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools"
         mkdir %CONAN_USER_HOME%
         conan user
         echo Add LKEB artifactory as remote
         conan remote add %CONAN_LKEB_ARTIFACTORY% %CONAN_UPLOAD%
-        echo Extend conan cacert.pem - to allow conan to certify the LKEB Artifactory
+        echo Extend conan cacert.pem
         for /f "delims=" %%i in ('conan config home') do set CONANHOME=%%i
         SETLOCAL EnableDelayedExpansion
         echo !CONAN_PEM! >> %CONANHOME%\cacert.pem
         ENDLOCAL
         echo Add upload user
         conan user -r %CONAN_LKEB_ARTIFACTORY% -p ${{ inputs.conan-password }} ${{ inputs.conan-user }}
-      
-         conan profile new action_build
-         conan profile update settings.os=Windows action_build
-         conan profile update settings.os_build=Windows action_build
-         conan profile update settings.arch=x86_64 action_build
-         conan profile update settings.arch_build=x86_64 action_build
-         conan profile update settings.compiler="Visual Studio" action_build
-         conan profile update settings.compiler.runtime=${{ inputs.conan-visual-runtime }} action_build
-         conan profile update settings.compiler.version=${{ inputs.conan-visual-version }} action_build
-         conan profile update settings.build_type=${{ inputs.conan-build-type }} action_build
-         conan profile update options.${{ inputs.conan-package }}:shared=True action_build
-         conan profile show action_build
+        for /f "delims=" %%i in ('conan inspect --raw name conanfile.py') do set CONAN_PACKAGE_NAME=%%i
 
-         conan create . ${{ inputs.conan-reference }}  --profile action_build
+        conan profile new action_build
+        conan profile update settings.os=Windows action_build
+        conan profile update settings.os_build=Windows action_build
+        conan profile update settings.arch=x86_64 action_build
+        conan profile update settings.arch_build=x86_64 action_build
+        conan profile update settings.compiler="Visual Studio" action_build
+        conan profile update settings.compiler.runtime=${{ inputs.conan-visual-runtime }} action_build
+        conan profile update settings.compiler.version=${{ inputs.conan-visual-version }} action_build
+        conan profile update settings.build_type=${{ inputs.conan-build-type }} action_build
+        conan profile update options.%CONAN_PACKAGE_NAME%:shared=True action_build
+        conan profile show action_build
 
-         conan upload --all --force --confirm -r %CONAN_LKEB_ARTIFACTORY% ${{ inputs.conan-reference }}
+        mkdir _build
+        conan create . lkeb/stable --profile action_build
+        conan upload --all --force --confirm -r %CONAN_LKEB_ARTIFACTORY% %CONAN_PACKAGE_NAME%/*
 
       shell: cmd
       env:
-         BUILD_SHARED: True
-         CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
-         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
-         CONAN_PEM: ${{ inputs.conan-pem }}
+        BUILD_SHARED: True
+        CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
+        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
+        CONAN_PEM: ${{ inputs.conan-pem }}
+

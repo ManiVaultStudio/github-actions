@@ -27,25 +27,25 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: setup ssh key for rules_support deploy
+    #- name: setup ssh key for rules_support deploy
       # The choco install is needed for windows-2016.
       # For windows-2019 the ssh-agent is apparently present
       # and just needs to be started.
-      run: |
-          choco install --no-progress -my openssh --params '"/SSHAgentFeature"'
-          refreshenv
-          Write-Output 'Starting ssh-agent service...'
-          Get-Service -Name 'ssh-agent' | Set-Service -StartupType Manual
-          Start-Service -Name 'ssh-agent'
-          New-Item -ItemType Directory -Force -Path '~/.ssh' *>$null
-          $env:RS_SSH_KEY | &ssh-add -
-          &ssh-keyscan -H "$(
-            @($env:SSH_HOST) + (Resolve-DnsName $env:SSH_HOST).IPAddress -Join ','
-          )" | Add-Content '~/.ssh/known_hosts'
-      shell: powershell
-      env:
-        RS_SSH_KEY: ${{ inputs.rs_ssh_key }}
-        SSH_HOST: github.com
+      #run: |
+      #    choco install --no-progress -my openssh --params '"/SSHAgentFeature"'
+      #    refreshenv
+      #    Write-Output 'Starting ssh-agent service...'
+      #    Get-Service -Name 'ssh-agent' | Set-Service -StartupType Manual
+      #    Start-Service -Name 'ssh-agent'
+      #    New-Item -ItemType Directory -Force -Path '~/.ssh' *>$null
+      #    $env:RS_SSH_KEY | &ssh-add -
+      #    &ssh-keyscan -H "$(
+      #      @($env:SSH_HOST) + (Resolve-DnsName $env:SSH_HOST).IPAddress -Join ','
+      #    )" | Add-Content '~/.ssh/known_hosts'
+      #shell: powershell
+      #env:
+      #  RS_SSH_KEY: ${{ inputs.rs_ssh_key }}
+      #  SSH_HOST: github.com
 
     - name: Install conan & build configuration
       run: |

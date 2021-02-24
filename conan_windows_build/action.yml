@@ -56,6 +56,8 @@ runs:
         echo Add upload user
         conan user -r %CONAN_LKEB_ARTIFACTORY% -p ${{ inputs.conan-password }} ${{ inputs.conan-user }}
         for /f "delims=" %%i in ('conan inspect --raw name conanfile.py') do set CONAN_PACKAGE_NAME=%%i
+        echo "PACKAGE_NAME=%CONAN_PACKAGE_NAME%" >> $GITHUB_ENV
+        echo "LKEB_ARTIFACTORY=%CONAN_LKEB_ARTIFACTORY%" >> $GITHUB_ENV
 
         conan profile new action_build
         conan profile update settings.os=Windows action_build
@@ -70,13 +72,22 @@ runs:
         conan profile show action_build
 
         mkdir _build
-        conan create . lkeb/stable --profile action_build
-        conan upload --all --force --confirm -r %CONAN_LKEB_ARTIFACTORY% %CONAN_PACKAGE_NAME%/*
-
       shell: cmd
       env:
         BUILD_SHARED: True
         CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
         CONAN_PEM: ${{ inputs.conan-pem }}
+
+    - name: Build with conan
+      run: |
+        conan create . lkeb/stable --profile action_build
+      shell: cmd
+
+    - name: Upload to artifactory with conan
+      run: |
+        conan upload --all --force --confirm -r ${{ env.LKEB_ARTIFACTORYE }} ${{ env.PACKAGE_NAME }}/*
+      env:
+        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
+      shell: cmd
 

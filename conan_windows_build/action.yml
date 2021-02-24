@@ -41,19 +41,17 @@ runs:
 
         echo CMake version:
         cmake --version
-        for /f "delims=" %%i in ('where cmake') do set CONAN_CMAKE_PROGRAM="%%i"
         set CONAN_USER_HOME=%cd%\_conan
-        set VS160COMNTOOLS="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools"
         mkdir %CONAN_USER_HOME%
         conan user
 
         echo Extend conan cacert.pem
-        for /f "delims=" %%i in ('conan config home') do set CONANHOME=%%i
+        for /f "delims=" %%i in ('conan config home') do set CONANPEMHOME=%%i
         SETLOCAL EnableDelayedExpansion
-        echo !CONAN_PEM! >> %CONANHOME%\cacert.pem
+        echo !CONAN_PEM! >> %CONANPEMHOME%\cacert.pem
         ENDLOCAL
-        echo Add upload user
 
+        REM Fish the package name from the conanfile.py
         for /f "delims=" %%i in ('conan inspect --raw name conanfile.py') do set CONAN_PACKAGE_NAME=%%i
         echo "PACKAGE_NAME=%CONAN_PACKAGE_NAME%" >> $GITHUB_ENV
         echo "LKEB_ARTIFACTORY=%CONAN_LKEB_ARTIFACTORY%" >> $GITHUB_ENV
@@ -65,8 +63,13 @@ runs:
 
     - name: Build with conan
       run: |
+        for /f "delims=" %%i in ('where cmake') do set CONAN_CMAKE_PROGRAM="%%i"
+        set CONAN_USER_HOME=%cd%\_conan
+        set VS160COMNTOOLS="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools"
+
         echo Add LKEB artifactory as remote
         conan remote add ${{ env.LKEB_ARTIFACTORY }} %CONAN_UPLOAD%
+        echo Add upload user
         conan user -r ${{ env.LKEB_ARTIFACTORY }} -p ${{ inputs.conan-password }} ${{ inputs.conan-user }}
         conan profile new action_build
         conan profile update settings.os=Windows action_build
@@ -89,6 +92,7 @@ runs:
 
     - name: Upload to artifactory with conan
       run: |
+        set CONAN_USER_HOME=%cd%\_conan
         conan upload --all --force --confirm -r ${{ env.LKEB_ARTIFACTORY }} ${{ env.PACKAGE_NAME }}/*
 
       shell: cmd

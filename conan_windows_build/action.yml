@@ -68,7 +68,7 @@ runs:
         conan profile update settings.compiler.runtime=${{ inputs.conan-visual-runtime }} action_build
         conan profile update settings.compiler.version=${{ inputs.conan-visual-version }} action_build
         conan profile update settings.build_type=${{ inputs.conan-build-type }} action_build
-        conan profile update options.%CONAN_PACKAGE_NAME%:shared=True action_build
+        conan profile update options.%CONAN_PACKAGE_NAME%:shared=%BUILD_SHARED% action_build
         conan profile show action_build
 
         mkdir _build
@@ -86,8 +86,7 @@ runs:
 
     - name: Upload to artifactory with conan
       run: |
-        conan upload --all --force --confirm -r ${{ env.LKEB_ARTIFACTORYE }} ${{ env.PACKAGE_NAME }}/*
-      env:
-        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
+        conan upload --all --force --confirm -r ${{ env.LKEB_ARTIFACTORY }} ${{ env.PACKAGE_NAME }}/*
+
       shell: cmd
 

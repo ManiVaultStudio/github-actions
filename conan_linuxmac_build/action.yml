@@ -63,6 +63,7 @@ runs:
 
     - name: Build with conan
       run: |
+        export CONAN_USER_HOME=`pwd`/_conan
         echo Add LKEB artifactory as remote
         conan remote add $CONAN_LKEB_ARTIFACTORY $CONAN_UPLOAD
         echo Add upload user
@@ -94,6 +95,7 @@ runs:
 
     - name: Upload to artifactory with conan
       run: |
+        export CONAN_USER_HOME=`pwd`/_conan
         export CONAN_PACKAGE_NAME=`conan inspect --raw name conanfile.py`
         conan upload --all --force --confirm -r $CONAN_LKEB_ARTIFACTORY $CONAN_PACKAGE_NAME/*
 

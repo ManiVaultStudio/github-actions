@@ -53,7 +53,7 @@ runs:
 
         REM Fish the package name from the conanfile.py
         for /f "delims=" %%i in ('conan inspect --raw name conanfile.py') do set CONAN_PACKAGE_NAME=%%i
-        echo "PACKAGE_NAME=%CONAN_PACKAGE_NAME%" >> $GITHUB_ENV
+        echo "PACKAGE_NAME=%CONAN_PACKAGE_NAME%" >> ${env.GITHUB_ENV}
 
       shell: cmd
       env:
@@ -78,7 +78,7 @@ runs:
         conan profile update settings.compiler.runtime=${{ inputs.conan-visual-runtime }} action_build
         conan profile update settings.compiler.version=${{ inputs.conan-visual-version }} action_build
         conan profile update settings.build_type=${{ inputs.conan-build-type }} action_build
-        conan profile update options.${{ env.PACKAGE_NAME }}:shared=%BUILD_SHARED% action_build
+        conan profile update options.:shared=%BUILD_SHARED% action_build
         conan profile show action_build
 
         mkdir _build

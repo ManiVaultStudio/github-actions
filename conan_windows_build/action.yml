@@ -93,6 +93,7 @@ runs:
     - name: Upload to artifactory with conan
       run: |
         set CONAN_USER_HOME=%cd%\_conan
+        echo "Uploading ${{ env.PACKAGE_NAME }} to the Artifactory"
         conan upload --all --force --confirm -r %CONAN_LKEB_ARTIFACTORY% ${{ env.PACKAGE_NAME }}/*
 
       shell: cmd

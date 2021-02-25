@@ -98,6 +98,7 @@ runs:
         echo "Uploading $package_ref  to the Artifactory"
         conan upload --all --force --confirm -r $Env:CONAN_LKEB_ARTIFACTORY $package_ref
 
+      shell: pwsh
       env:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 

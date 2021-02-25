@@ -54,7 +54,6 @@ runs:
         REM Fish the package name from the conanfile.py
         for /f "delims=" %%i in ('conan inspect --raw name conanfile.py') do set CONAN_PACKAGE_NAME=%%i
         echo "Completed setup for package: %CONAN_PACKAGE_NAME%"
-        pwsh -Command {echo "PACKAGE_NAME=$Env:CONAN_PACKAGE_NAME >> $Env:GITHUB_ENV}
 
       shell: cmd
       env:
@@ -94,8 +93,10 @@ runs:
     - name: Upload to artifactory with conan
       run: |
         $env:CONAN_USER_HOME = (Get-Location).tostring() + '\_conan'
-        echo "Uploading ${{env.PACKAGE_NAME}} to the Artifactory"
-        conan upload --all --force --confirm -r %CONAN_LKEB_ARTIFACTORY% ${{env.PACKAGE_NAME}}/*
+        $package_name = (conan inspect --raw name conanfile.py)
+        $package_ref = $package_name + '/*'
+        echo "Uploading $package_ref  to the Artifactory"
+        conan upload --all --force --confirm -r $Env:CONAN_LKEB_ARTIFACTORY $package_ref
 
       env:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory

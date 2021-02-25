@@ -53,7 +53,8 @@ runs:
 
         REM Fish the package name from the conanfile.py
         for /f "delims=" %%i in ('conan inspect --raw name conanfile.py') do set CONAN_PACKAGE_NAME=%%i
-        echo "PACKAGE_NAME=%CONAN_PACKAGE_NAME%" >> ${env.GITHUB_ENV}
+        echo "Completed setup for package: %CONAN_PACKAGE_NAME%"
+        pwsh -Command {echo "PACKAGE_NAME=%CONAN_PACKAGE_NAME%" >> $Env:GITHUB_ENV}
 
       shell: cmd
       env:

@@ -29,7 +29,7 @@ runs:
   steps:
     - name: Install conan & build configuration
       run: |
-        pip install conan==1.41.0
+        pip install conan==1.43.0
         pip install conan_package_tools bincrafters_package_tools
         pip install -Iv cmake>=3.17
         pip install gitpython

@@ -74,12 +74,21 @@ conan_windows_build
   - README.md
 ```
 
+## Issues
+
+Due to a markup/jinja bug conan install is:
+
+```
+        pip install conan~=1.43.0
+        pip install "markupsafe<2.1"
+```
+
 ## Index
 
-Action directory | Function | Inputs link
---- | --- | ---
-conan_build_linuxmac | Install dependencies and execute a conan build on linux or mac | [Linux Mac Inputs](./conan_linuxmac_build/README.md)
-conan_build_windows | Install dependencies and execute a conan build on Windows (2016) | [Windows Inputs](./conan_windows_build/README.md)
+| Action directory     | Function                                                         | Inputs link                                          |
+| -------------------- | ---------------------------------------------------------------- | ---------------------------------------------------- |
+| conan_build_linuxmac | Install dependencies and execute a conan build on linux or mac   | [Linux Mac Inputs](./conan_linuxmac_build/README.md) |
+| conan_build_windows  | Install dependencies and execute a conan build on Windows (2016) | [Windows Inputs](./conan_windows_build/README.md)    |
 
 
 

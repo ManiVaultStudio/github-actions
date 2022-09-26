@@ -83,7 +83,7 @@ runs:
         conan profile show action_build
 
         mkdir _build
-        conan create . lkeb/stable --profile action_build
+        conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build
 
       shell: bash
       env:

@@ -29,6 +29,9 @@ inputs:
   conan-password:
     description: "pass secrets.LKEB_ARTIFACTORY_PASSWORD"
     required: true
+  conan-pem:
+    description: "pass secrets.LKEB_CERT_CHAIN"
+    required: true
 
 runs:
   using: "composite"
@@ -45,9 +48,11 @@ runs:
 
         echo Extend conan cacert.pem
         conanhome=`conan config home`
-        cat cert.pem >> $conanhome/cacert.pem
+        echo -e "$CONAN_PEM" >> $conanhome/cacert.pem
 
       shell: bash
+      env:
+        CONAN_PEM: ${{ inputs.conan-pem }}
 
     - name: Build with conan
       run: |

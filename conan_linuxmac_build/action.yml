@@ -43,7 +43,7 @@ runs:
         pip install "markupsafe<2.1"
         pip install -Iv cmake>=3.17
         pip install gitpython
-        pip install -v git+ssh://git@github.com/hdps/rulessupport.git@master
+        pip install -v git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
 
         export CONAN_CMAKE_PROGRAM=`which cmake`
         echo CMake version:

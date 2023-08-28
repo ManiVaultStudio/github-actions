@@ -40,6 +40,7 @@ runs:
       run: |
         if [[ "$OSTYPE" == "linux-gnu"* ]]; then
           sudo apt-get install ninja-build
+          sudo apt-get install libtbb-dev
         fi
         
         pip install wheel

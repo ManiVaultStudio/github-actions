@@ -38,7 +38,9 @@ runs:
   steps:
     - name: Install conan & build configuration
       run: |
-        sudo apt-get install ninja-build
+        if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+          sudo apt-get install ninja-build
+        fi
         
         pip install wheel
         pip install conan~=1.54.0

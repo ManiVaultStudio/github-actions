@@ -38,6 +38,8 @@ runs:
   steps:
     - name: Install conan & build configuration
       run: |
+        sudo apt-get install ninja-build
+        
         pip install wheel
         pip install conan~=1.54.0
         pip install "markupsafe<2.1"

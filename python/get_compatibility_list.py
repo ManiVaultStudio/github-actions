@@ -3,6 +3,7 @@ import importlib
 import os
 import sys
 from pathlib import Path
+from subprocess import run
 
 def get_list_from_conanfile(args):
     # the information is in the conanfile if that file
@@ -17,7 +18,7 @@ def get_list_from_conanfile(args):
     print(f"{dir(module)}")
     if "compatibility" in dir(module):
         return (module.compatibility(args.os, args.compiler, args.compiler_version))
-    return ""
+    return None
 
 
 
@@ -27,4 +28,8 @@ if __name__ == "__main__":
     parser.add_argument("compiler", type=str, help="The compiler target of the build")
     parser.add_argument("compiler_version", type=str, help="The compiler-version target of the build")
     args = parser.parse_args()
-    print(get_list_from_conanfile(args))
+    list = get_list_from_conanfile(args)
+    if list:
+        run(['conan', 'profile', 'new', 'compatibility' ])
+        for line in list:
+            run(['conan', 'profile', 'update', f'settings.{line}', 'compatibility'])

@@ -66,15 +66,28 @@ runs:
       env:
         CONAN_PEM: ${{ inputs.conan-pem }}
 
-    - name: Build with conan
+    - name: Setup conan
       run: |
         export CONAN_USER_HOME=`pwd`/_conan
         echo Add LKEB artifactory as remote
         conan remote add $CONAN_LKEB_ARTIFACTORY $CONAN_UPLOAD
         echo Add upload user
         conan user -r $CONAN_LKEB_ARTIFACTORY -p ${{ inputs.conan-password }} ${{ inputs.conan-user }}
-        export CONAN_PACKAGE_NAME=`conan inspect --raw name conanfile.py`
 
+    - name: Get compatibility logic
+      uses: actions/checkout@v4
+      with:
+        repository: ManivaultStudio/gihub-actions
+        path: github-actions
+        ref: compatibility
+
+    - name: Make compatibility profile (if needed) 
+      run:
+        python github-actions/python/get_compatibility_list.py ${{ inputs.conan-build-os }} ${{ inputs.conan-compiler }} ${{ inputs.conan-compiler-version }}
+      shell: bash
+
+    - name: Build with conan   
+        export CONAN_PACKAGE_NAME=`conan inspect --raw name conanfile.py`
         conan profile new action_build
         conan profile update settings.os=${{ inputs.conan-build-os }} action_build
         conan profile update settings.os_build=${{ inputs.conan-build-os }} action_build
@@ -89,7 +102,12 @@ runs:
 
         mkdir _build
         if [ -d "./external/conan-recipes" ]; then conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable; fi
-        conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build
+        conan profile list | grep compatibility
+        if [ $? -ne 0]; then
+          conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build
+        else
+          conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build -pr compatibility
+        fi
 
       shell: bash
       env:

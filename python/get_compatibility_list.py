@@ -8,6 +8,7 @@ from inspect import isfunction
 
 def call_func(full_module_name, func_name, *argv):
     module = importlib.import_module(full_module_name)
+    print(f"module: {full_module_name} contents: {dir(module)}")
     for attribute_name in dir(module):
         attribute = getattr(module, attribute_name)
         if isfunction(attribute) and attribute_name == func_name:

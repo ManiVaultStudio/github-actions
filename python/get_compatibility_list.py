@@ -21,6 +21,7 @@ def get_list_from_conanfile(args):
     root_path = Path(os.getenv("GITHUB_WORKSPACE", "."))
     import_path = root_path.parents[0]
     print(f"import path {import_path}")
+    print(f"working dir {os.curdir}")
     call_func(f'{import_path}', 'compatibility', args.os, args.compiler, args.compiler_version)
 
 if __name__ == "__main__":

@@ -82,7 +82,7 @@ runs:
     - name: Get compatibility logic
       uses: actions/checkout@v4
       with:
-        repository: ManivaultStudio/gihub-actions
+        repository: ManiVaultStudio/gihub-actions
         path: github-actions
         ref: compatibility
 

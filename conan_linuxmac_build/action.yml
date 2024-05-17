@@ -109,11 +109,11 @@ runs:
 
         mkdir _build
         if [ -d "./external/conan-recipes" ]; then conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable; fi
-        conan profile list | grep compatibility
-        if [ $? -ne 0]; then
-          conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build
-        else
+        
+        if [ conan profile list | grep compatibility ]; then
           conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build -pr compatibility
+        else
+          conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build
         fi
 
       shell: bash

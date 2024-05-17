@@ -22,8 +22,10 @@ def get_list_from_conanfile(args):
     import_path = root_path.parents[0]
     print(f"import path {import_path}")
     print(f"working dir {Path(os.curdir).absolute()}")
+    print(f"{os.listdir(os.curdir)}")
     os.chdir('..') 
     print(f"working dir {Path(os.curdir).absolute()}")
+    print(f"{os.listdir(os.curdir)}")
     call_func(f'conanfile', 'compatibility', args.os, args.compiler, args.compiler_version)
 
 if __name__ == "__main__":

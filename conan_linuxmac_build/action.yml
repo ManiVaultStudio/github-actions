@@ -83,8 +83,9 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: ManiVaultStudio/gihub-actions
-        path: github-actions
         ref: compatibility
+        path: github-actions
+        fetch-depth: 1
 
     - name: Make compatibility profile (if needed) 
       run: |

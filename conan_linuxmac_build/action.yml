@@ -87,11 +87,12 @@ runs:
         ref: compatibility
 
     - name: Make compatibility profile (if needed) 
-      run:
+      run: |
         python github-actions/python/get_compatibility_list.py ${{ inputs.conan-build-os }} ${{ inputs.conan-compiler }} ${{ inputs.conan-compiler-version }}
       shell: bash
 
-    - name: Build with conan   
+    - name: Build with conan 
+      run: |   
         export CONAN_PACKAGE_NAME=`conan inspect --raw name conanfile.py`
         conan profile new action_build
         conan profile update settings.os=${{ inputs.conan-build-os }} action_build

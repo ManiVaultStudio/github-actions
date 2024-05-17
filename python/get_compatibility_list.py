@@ -7,7 +7,7 @@ from subprocess import run
 from inspect import isfunction
 
 def call_func(full_module_name, func_name, *argv):
-    module = importlib.import_module(full_module_name, package=__name__)
+    module = importlib.import_module(full_module_name)
     for attribute_name in dir(module):
         attribute = getattr(module, attribute_name)
         if isfunction(attribute) and attribute_name == func_name:

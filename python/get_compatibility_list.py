@@ -34,7 +34,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     list = get_list_from_conanfile(args)
     if list:
-        print(f"compability: {list})
+        print(f"compability: {list}")
         run(['conan', 'profile', 'new', 'compatibility' ])
         for line in list:
             run(['conan', 'profile', 'update', f'settings.{line}', 'compatibility'])

@@ -11,10 +11,10 @@ def call_func(full_module_name, func_name, *argv):
     print(f"module: {full_module_name} contents: {dir(module)}")
     for attribute_name in dir(module):
         attribute = getattr(module, attribute_name)
+        print(f"checking {attribute}")
         if isfunction(attribute) and attribute_name == func_name:
-            attribute(*argv)
-        else:
-            return None
+            return attribute(*argv)
+    return None
 
 def get_list_from_conanfile(args):
     # the information is in the conanfile if that file

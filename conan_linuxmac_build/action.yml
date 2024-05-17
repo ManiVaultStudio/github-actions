@@ -73,6 +73,11 @@ runs:
         conan remote add $CONAN_LKEB_ARTIFACTORY $CONAN_UPLOAD
         echo Add upload user
         conan user -r $CONAN_LKEB_ARTIFACTORY -p ${{ inputs.conan-password }} ${{ inputs.conan-user }}
+      shell: bash
+      env:
+        BUILD_SHARED: True
+        CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
+        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 
     - name: Get compatibility logic
       uses: actions/checkout@v4

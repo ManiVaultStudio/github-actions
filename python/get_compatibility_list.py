@@ -25,7 +25,7 @@ def get_list_from_conanfile(args):
     print(f"working dir {Path(os.curdir).absolute()}")
     print(f"{os.listdir(os.curdir)}")
     sys.path.insert(0, '')
-    call_func(f'conanfile', 'compatibility', args.os, args.compiler, args.compiler_version)
+    return call_func(f'conanfile', 'compatibility', args.os, args.compiler, args.compiler_version)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

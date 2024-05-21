@@ -116,6 +116,7 @@ runs:
         if [ -d "./external/conan-recipes" ]; then conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable; fi
         
         if [[ $compatibility_found == compatibility ]]; then
+          echo "Configuration for profile compatibility"
           cat `conan config home`/profiles/compatibility
           conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build -pr compatibility
         else

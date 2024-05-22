@@ -1,0 +1,1 @@
+from .conanfile import compatibility

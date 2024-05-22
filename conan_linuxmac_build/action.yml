@@ -66,15 +66,42 @@ runs:
       env:
         CONAN_PEM: ${{ inputs.conan-pem }}
 
-    - name: Build with conan
+    - name: Setup conan
       run: |
         export CONAN_USER_HOME=`pwd`/_conan
         echo Add LKEB artifactory as remote
         conan remote add $CONAN_LKEB_ARTIFACTORY $CONAN_UPLOAD
         echo Add upload user
         conan user -r $CONAN_LKEB_ARTIFACTORY -p ${{ inputs.conan-password }} ${{ inputs.conan-user }}
-        export CONAN_PACKAGE_NAME=`conan inspect --raw name conanfile.py`
+      shell: bash
+      env:
+        BUILD_SHARED: True
+        CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
+        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 
+    - name: Get compatibility logic
+      uses: actions/checkout@v4
+      with:
+        repository: ManiVaultStudio/github-actions
+        ref: compatibility
+        path: github-actions
+        fetch-depth: 1
+
+# Continue on error is to suppress grep 
+# exit code when compatibility is not present
+    - name: Make compatibility profile (if needed) 
+      continue-on-error: true
+      run: |
+        export CONAN_USER_HOME=`pwd`/_conan
+        python github-actions/python/get_compatibility_list.py ${{ inputs.conan-build-os }} ${{ inputs.conan-compiler }} ${{ inputs.conan-compiler-version }}
+        compatibility_found=`conan profile list | (grep -E 'compatibility' || true)`
+        echo "compatibility_found=$compatibility_found" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Setup profiles 
+      run: |   
+        export CONAN_USER_HOME=`pwd`/_conan
+        export CONAN_PACKAGE_NAME=`conan inspect --raw name conanfile.py`
         conan profile new action_build
         conan profile update settings.os=${{ inputs.conan-build-os }} action_build
         conan profile update settings.os_build=${{ inputs.conan-build-os }} action_build
@@ -88,21 +115,30 @@ runs:
         conan profile show action_build
 
         mkdir _build
-        if [ -d "./external/conan-recipes" ]; then conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable; fi
-        conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build
 
       shell: bash
       env:
         BUILD_SHARED: True
-        CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
-        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
         CC: ${{inputs.conan-cc}}
         CXX: ${{inputs.conan-cxx}}
 
-    - name: Upload to artifactory with conan
+    - name: Build & upload to artifactory with conan
       run: |
         export CONAN_USER_HOME=`pwd`/_conan
+        if [ -d "./external/conan-recipes" ]; then conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable; fi
+        
+        if [[ $compatibility_found == compatibility ]]; then
+          echo "Configuration for profile compatibility"
+          cat `conan config home`/profiles/compatibility
+          conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build -pr compatibility
+        else
+          conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build
+        fi
+        echo "Display package recipes"
+        conan search $CONAN_PACKAGE_NAME
         export CONAN_PACKAGE_NAME=`conan inspect --raw name conanfile.py`
+        export CONAN_PACKAGE_VERSION=`conan inspect --raw version conanfile.py`
+        echo "About to upload $CONAN_PACKAGE_NAME/$CONAN_PACKAGE_VERSION to $CONAN_LKEB_ARTIFACTORY"
         conan upload --all --force --confirm -r $CONAN_LKEB_ARTIFACTORY $CONAN_PACKAGE_NAME/*
 
       shell: bash

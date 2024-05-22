@@ -97,7 +97,7 @@ runs:
         echo "compatibility_found=$compatibility_found" >> $GITHUB_ENV
       shell: bash
 
-    - name: Build with conan 
+    - name: Setup profiles 
       run: |   
         export CONAN_PACKAGE_NAME=`conan inspect --raw name conanfile.py`
         conan profile new action_build
@@ -113,6 +113,15 @@ runs:
         conan profile show action_build
 
         mkdir _build
+
+      shell: bash
+      env:
+        BUILD_SHARED: True
+        CC: ${{inputs.conan-cc}}
+        CXX: ${{inputs.conan-cxx}}
+
+    - name: Build & upload to artifactory with conan
+      run: |
         if [ -d "./external/conan-recipes" ]; then conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable; fi
         
         if [[ $compatibility_found == compatibility ]]; then
@@ -125,16 +134,6 @@ runs:
         echo "Display package recipes"
         conan search $CONAN_PACKAGE_NAME
 
-      shell: bash
-      env:
-        BUILD_SHARED: True
-        CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
-        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
-        CC: ${{inputs.conan-cc}}
-        CXX: ${{inputs.conan-cxx}}
-
-    - name: Upload to artifactory with conan
-      run: |
         export CONAN_USER_HOME=`pwd`/_conan
         export CONAN_PACKAGE_NAME=`conan inspect --raw name conanfile.py`
         export CONAN_PACKAGE_VERSION=`conan inspect --raw version conanfile.py`

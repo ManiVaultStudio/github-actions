@@ -140,7 +140,7 @@ runs:
         echo "Packages in cache: "
         conan search
         echo "About to upload $CONAN_PACKAGE_NAME/$CONAN_PACKAGE_VERSION to $CONAN_LKEB_ARTIFACTORY"
-        conan upload --all --force --confirm -r $CONAN_LKEB_ARTIFACTORY $CONAN_PACKAGE_NAME/$CONAN_PACKAGE_VERSION
+        conan upload --all --force --confirm -r $CONAN_LKEB_ARTIFACTORY $CONAN_PACKAGE_NAME/*
 
       shell: bash
       env:

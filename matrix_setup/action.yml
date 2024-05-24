@@ -17,3 +17,4 @@ runs:
         echo "$(cat matrix/matrix.json)" >> $GITHUB_OUTPUT
         echo EOF >> $GITHUB_OUTPUT 
     id: set-matrix 
+    shell: bash

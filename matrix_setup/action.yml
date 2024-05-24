@@ -1,5 +1,10 @@
 name: "Matrix prepare"
 description: "Supply a matrix GITHUB_OUTPUT"
+outputs:
+  matrix: 
+    description: "The centrally defined matrix"
+    value: ${{ steps.set-matrix.outputs.matrix }}
+
 runs:
   using: "composite"
   steps:

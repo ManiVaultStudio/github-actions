@@ -1,0 +1,17 @@
+name: "Matrix prepare"
+description: "Supply a matrix GITHUB_OUTPUT"
+runs:
+  using: "composite"
+  steps:
+  - name: Get matrix from file
+  - id: set-matrix  
+    uses: actions/checkout@v2
+    with:
+      repository: ManiVaultStudio/github-actions
+      ref: compatibility
+      path: matrix
+      fetch-depth: 1
+    run: |
+        echo "matrix<<EOF" >> $GITHUB_OUTPUT
+        echo "$(cat matrix/matrix.json)" >> $GITHUB_OUTPUT
+        echo EOF >> $GITHUB_OUTPUT  

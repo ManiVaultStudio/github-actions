@@ -35,7 +35,7 @@ runs:
           do
             jfiles="$jfiles matrix/build_matrices/$jfile"  
           done
-
+          echo "matrix is composed of $jfiles"
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
           echo "$(jq -s '[.[][]]' $jfiles)" >> $GITHUB_OUTPUT
           echo EOF >> $GITHUB_OUTPUT

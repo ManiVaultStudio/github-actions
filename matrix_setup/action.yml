@@ -1,14 +1,9 @@
 name: "Matrix prepare"
 description: "Supply a matrix GITHUB_OUTPUT"
 inputs:
-  matrix_name:
-    description: 'The name of the matrix to be returned defaults to default.json'
-    default: 'default.json'
-    required: false
-
-  combine:
-    description: "A list of matrix name to be combined e.g. 'windows_2019.json linux_gcc11.json', takes precedence over matrix_name "
-    default: ''
+  matrix_ids:
+    description: "A list of matrix ids to be used e.g. 'windows_2019 linux_gcc11 macos_code14' is empty all matrices are used."
+    default: 'windows_2019 linux_gcc11 macos_code14'
     required: false
 
 outputs:
@@ -29,17 +24,13 @@ runs:
 
   - name: Get matrix from file  
     run: |
-        if [ -n "${{ inputs.combine }}" ]; then
+        if [ -n "${{ inputs.matrix_ids }}" ]; then
           all_files=""
-          for jfile in ""${{ inputs.combine }}""; do all_files+=" matrix/build_matrices/$jfile.json"; done
+          for jfile in ""${{ inputs.matrix_ids }}""; do all_files+=" matrix/build_matrices/$jfile.json"; done
           echo "matrix is composed of $all_files"
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
           echo "$(jq -s '[.[][]]' $all_files)" >> $GITHUB_OUTPUT
           echo EOF >> $GITHUB_OUTPUT
-        else
-          echo "matrix<<EOF" >> $GITHUB_OUTPUT
-          echo "$(cat matrix/build_matrices/${{ inputs.matrix_name }})" >> $GITHUB_OUTPUT
-          echo EOF >> $GITHUB_OUTPUT 
         fi
     id: set-matrix 
     shell: bash

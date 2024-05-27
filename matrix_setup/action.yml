@@ -31,7 +31,7 @@ runs:
     run: |
         if [ -n "${{ inputs.combine_list }}" ]; then
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
-          echo "$(jq -s '[.[][]]' ${{ inputs.combine_list }})" >> $GITHUB_OUTPUT
+          echo "$(jq -s '[.[][]]' ${{ inputs.combine }})" >> $GITHUB_OUTPUT
           echo EOF >> $GITHUB_OUTPUT
         else
           echo "matrix<<EOF" >> $GITHUB_OUTPUT

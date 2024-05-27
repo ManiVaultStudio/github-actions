@@ -6,6 +6,11 @@ inputs:
     default: 'default.json'
     required: false
 
+  combine:
+    description: "A list of matrix name to be combined e.g. 'windows_2019.json linux_gcc11.json', takes precedence over matrix_name "
+    default: ''
+    required: false
+
 outputs:
   matrix: 
     description: "The centrally defined matrix"
@@ -24,9 +29,15 @@ runs:
 
   - name: Get matrix from file  
     run: |
-        echo "matrix<<EOF" >> $GITHUB_OUTPUT
-        echo "$(cat matrix/build_matrices/${{ inputs.matrix_name }})" >> $GITHUB_OUTPUT
-        echo EOF >> $GITHUB_OUTPUT 
+        if [ -n "${{ inputs.combine_list }}" ]; then
+          echo "matrix<<EOF" >> $GITHUB_OUTPUT
+          echo "$(jq -s '[.[][]]' ${{ inputs.combine_list }})" >> $GITHUB_OUTPUT
+          echo EOF >> $GITHUB_OUTPUT
+        else
+          echo "matrix<<EOF" >> $GITHUB_OUTPUT
+          echo "$(cat matrix/build_matrices/${{ inputs.matrix_name }})" >> $GITHUB_OUTPUT
+          echo EOF >> $GITHUB_OUTPUT 
+        fi
     id: set-matrix 
     shell: bash
 

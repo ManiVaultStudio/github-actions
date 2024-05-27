@@ -23,3 +23,9 @@ runs:
         echo EOF >> $GITHUB_OUTPUT 
     id: set-matrix 
     shell: bash
+
+  - name: Log matrix
+    run: |
+      echo "Matrix content"
+      echo "${{ steps.set-matrix.outputs.matrix }}"
+    shell: bash

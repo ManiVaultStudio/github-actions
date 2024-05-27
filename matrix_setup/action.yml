@@ -1,5 +1,11 @@
 name: "Matrix prepare"
 description: "Supply a matrix GITHUB_OUTPUT"
+inputs:
+  matrix_name:
+    description: 'The name of the matrix to be returned defaults to default.json'
+    default: 'default.json'
+    required: false
+
 outputs:
   matrix: 
     description: "The centrally defined matrix"
@@ -19,7 +25,7 @@ runs:
   - name: Get matrix from file  
     run: |
         echo "matrix<<EOF" >> $GITHUB_OUTPUT
-        echo "$(cat matrix/matrix.json)" >> $GITHUB_OUTPUT
+        echo "$(cat matrix/build_matrices/${{ inputs.matrix_name }})" >> $GITHUB_OUTPUT
         echo EOF >> $GITHUB_OUTPUT 
     id: set-matrix 
     shell: bash

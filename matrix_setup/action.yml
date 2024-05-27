@@ -30,11 +30,8 @@ runs:
   - name: Get matrix from file  
     run: |
         if [ -n "${{ inputs.combine }}" ]; then
-          all_files=''
-          for jfile in "${{ inputs.combine }}"
-          do
-            all_files="$all_files matrix/build_matrices/$jfile"  
-          done
+          all_files=""
+          for jfile in "${{ inputs.combine }}"; do all_files="$all_files matrix/build_matrices/$jfile"; done
           echo "matrix is composed of $all_files"
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
           echo "$(jq -s '[.[][]]' $all_files)" >> $GITHUB_OUTPUT

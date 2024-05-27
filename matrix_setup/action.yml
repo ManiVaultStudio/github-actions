@@ -33,7 +33,7 @@ runs:
           jfiles=''
           for jfile in "${{ inputs.combine }}"
           do
-            jfiles = "$jfiles matrix/build_matrices/$jfile"  
+            jfiles="$jfiles matrix/build_matrices/$jfile"  
           done
 
           echo "matrix<<EOF" >> $GITHUB_OUTPUT

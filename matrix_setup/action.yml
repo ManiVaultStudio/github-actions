@@ -2,7 +2,14 @@ name: "Matrix prepare"
 description: "Supply a matrix GITHUB_OUTPUT"
 inputs:
   matrix_ids:
-    description: "A list of matrix ids to be used e.g. 'windows_2019 linux_gcc11 macos_code14' is empty all matrices are used."
+    description: | 
+      "A list of matrix ids to be used. Choose from
+
+       - windows_2019 
+       - linux_gcc11 
+       - macos_code14 
+       
+       If empty the list 'windows_2019 linux_gcc11 macos_code14' is used"
     default: 'windows_2019 linux_gcc11 macos_code14'
     required: false
 

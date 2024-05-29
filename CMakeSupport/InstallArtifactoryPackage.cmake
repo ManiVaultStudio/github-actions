@@ -51,7 +51,7 @@ endmacro(get_settings)
 function(find_artifactory_package)
     file(REMOVE aql_out.txt)
     set(CURL_COMMAND)
-    list(APPEND CURL_COMMAND curl -H "X-Jfrog-Art-Api:${APIREADTOKEN}" -X POST -H "content-type: text/plain" --data @${PROJECT_BINARY_DIR}/aql.json https://lkeb-artifactory.lumc.nl:443/artifactory/api/search/aql)
+    list(APPEND CURL_COMMAND curl -k -H "X-Jfrog-Art-Api:${APIREADTOKEN}" -X POST -H "content-type: text/plain" --data @${PROJECT_BINARY_DIR}/aql.json https://lkeb-artifactory.lumc.nl:443/artifactory/api/search/aql)
     execute_process(COMMAND ${CURL_COMMAND} RESULT_VARIABLE results OUTPUT_FILE ${PROJECT_SOURCE_DIR}/aql_out.txt)
 
     set(path_match "\"path\"")

@@ -179,4 +179,5 @@ function(install_artifactory_package package_name package_version package_builde
         "${os_name}" "${is_combined_package}" "${package_arch}")
     # add the HDILib to the module path
     set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/${package_name}" ${CMAKE_MODULE_PATH} PARENT_SCOPE)
+    set(${package_name}_ROOT "${LIBRARY_INSTALL_DIR}/${package_name}" PARENT_SCOPE)
 endfunction()

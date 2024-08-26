@@ -25,8 +25,8 @@ runs:
   - name: Get common matrix  
     uses: actions/checkout@v4
     with:
-      repository: ManiVaultStudio/github-actions@feature/FixLinuxInstaller
-      ref: main
+      repository: ManiVaultStudio/github-actions
+      ref: feature/FixLinuxInstaller
       path: matrix
       fetch-depth: 1
 

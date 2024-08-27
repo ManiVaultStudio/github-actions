@@ -39,7 +39,6 @@ if __name__ == "__main__":
         run(['conan', 'profile', 'new', 'compatibility' ])
         for line in list:
             run(['conan', 'profile', 'update', f'settings.{line}', 'compatibility'])
-            run(['conan', 'profile', 'update', f'settings_build.{line}', 'compatibility'])
         
         run(['conan', 'profile', 'list'])
     else:

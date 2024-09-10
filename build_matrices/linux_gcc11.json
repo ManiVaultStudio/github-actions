@@ -8,6 +8,6 @@
         "build-cversion": "11",
         "build-config": "Release",
         "build-os": "Linux",
-        "build-libcxx": "libstdc++"
+        "build-libcxx": "libstdc++11"
     }
 ]

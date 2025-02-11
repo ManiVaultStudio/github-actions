@@ -6,8 +6,12 @@ inputs:
       "A list of matrix ids to be used. Choose from
 
        - windows_2019 
+       - windows_2022 
        - linux_gcc11 
-       - macos_code14 
+       - linux_gcc13 
+       - macos_code14 [x86]
+       - macos_code15 [arm]
+       - macos_code16 [arm]
        
        If empty the list 'windows_2019 linux_gcc11 macos_code14' is used"
     default: 'windows_2019 linux_gcc11 macos_code14'

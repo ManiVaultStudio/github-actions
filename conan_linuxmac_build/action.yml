@@ -42,11 +42,13 @@ runs:
           sudo apt-get install ninja-build
           sudo apt-get install libtbb-dev
         fi
+
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+          brew install libomp
+          export HOMEBREW_NO_AUTO_UPDATE=1
+        fidarwin
         
-        pip install wheel
-        pip install conan==1.66.0
-        pip install "markupsafe<2.1"
-        pip install -Iv cmake~=3.31.0
+        pip install conan~=1.66.0
         pip install gitpython
         pip install -v git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
 
@@ -55,7 +57,6 @@ runs:
         cmake --version
         mkdir `pwd`/_conan
         export CONAN_USER_HOME=`pwd`/_conan
-        export HOMEBREW_NO_AUTO_UPDATE=1
         conan user
 
         echo Extend conan cacert.pem

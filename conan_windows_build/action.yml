@@ -29,10 +29,7 @@ runs:
   steps:
     - name: Install conan & build configuration
       run: |
-        pip install wheel
-        pip install conan==1.66.0
-        pip install "markupsafe<2.1"
-        pip install -Iv cmake~=3.31.0
+        pip install conan~=1.66.0
         pip install gitpython
         pip install git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
 

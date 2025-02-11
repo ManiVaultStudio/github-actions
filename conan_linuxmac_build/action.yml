@@ -44,9 +44,8 @@ runs:
         fi
         
         pip install wheel
-        pip install conan==1.62.0
+        pip install conan==1.66.0
         pip install "markupsafe<2.1"
-        pip install -Iv cmake~=3.27.0
         pip install gitpython
         pip install -v git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
 

@@ -29,7 +29,7 @@ runs:
     uses: actions/checkout@v4
     with:
       repository: ManiVaultStudio/github-actions
-      ref: ${{ github.ref }}
+      ref: feature/PrepareCIUpdate022025
       path: matrix
       fetch-depth: 1
 

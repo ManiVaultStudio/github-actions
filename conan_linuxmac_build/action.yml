@@ -36,14 +36,23 @@ inputs:
     description: "pass secrets.LKEB_CERT_CHAIN"
     required: true
 
+# Ubuntu 24.04 ships with libicu 74, see https://launchpad.net/ubuntu/+source/icu
+# but we some dependencies (qt 6.8) expect libicu 73, so we download is manually
 runs:
   using: "composite"
   steps:
     - name: Install conan & build configuration
       run: |
         if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-          sudo apt-get install ninja-build
-          sudo apt-get install libtbb-dev
+          sudo apt install -y ninja-build
+          sudo apt install -y libtbb-dev
+
+          sudo wget -q https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-Ubuntu22.04-x64.tgz
+          sudo tar -xf icu4c-73_2-Ubuntu22.04-x64.tgz
+          sudo find ./icu/usr/local/lib/ -name \"*.73*\" -print0 | xargs -0 cp -r -t /usr/lib/x86_64-linux-gnu/
+          find ./icu/usr/local/lib/ -name "*.73*" -exec cp {} /usr/lib/x86_64-linux-gnu/ \;
+          sudo rm -rf ./icu/
+          sudo rm -rf icu4c-73_2-Ubuntu22.04-x64.tgz
         fi
 
         if [[ "$OSTYPE" == "darwin"* ]]; then

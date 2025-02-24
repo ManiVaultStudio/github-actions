@@ -5,7 +5,7 @@ This action supportss Linux or macOS
 ```
 inputs:
   conan-compiler:
-    description: 'gcc9 apple-clang'
+    description: 'gcc apple-clang'
     required: true
   conan-cc:
     description: 'gcc clang'
@@ -14,7 +14,7 @@ inputs:
     description: 'g++ clang++'
     required: true
   conan-compiler-version:
-    description: 'A number [gcc: 5 6 7 8 9 ] [clang: 39 40 50 60 7 8 9] [10.0]'
+    description: 'A number [gcc: 8 9 10 11 12 14] [clang: 39 40 50 60 7 8 9 10 11 12 13 14 15 16 17 18 19 20] [10.0]'
     required: true
   conan-libcxx-version:
     description: 'Linux: libstdc++ or Macos: libc++ '

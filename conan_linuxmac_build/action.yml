@@ -3,7 +3,7 @@ description: "Encapsulate cmake composite run steps that are common for Linux an
 # reference https://docs.github.com/en/free-pro-team@latest/actions/creating-actions/creating-a-composite-run-steps-action
 inputs:
   conan-compiler:
-    description: "gcc9 apple-clang"
+    description: "gcc apple-clang"
     required: true
   conan-cc:
     description: "gcc clang"
@@ -12,7 +12,7 @@ inputs:
     description: "g++ clang++"
     required: true
   conan-compiler-version:
-    description: "A number [gcc: 8 9 10 11 12 13] [clang: 39 40 50 60 7 8 9 10 11 12 13] [10.0]"
+    description: "A number [gcc: 8 9 10 11 12 14] [clang: 39 40 50 60 7 8 9 10 11 12 13 14 15 16 17 18 19 20] [10.0]"
     required: true
   conan-libcxx-version:
     description: "Linux: libstdc++ or Macos: libc++ "
@@ -22,6 +22,9 @@ inputs:
     required: true
   conan-build-os:
     description: "Linux or Macos"
+    required: true
+  build-arch:
+    description: "either x86_64 or armv8 (for macos)"
     required: true
   conan-user:
     description: "pass secrets.LKEB_ARTIFACTORY_USER"
@@ -33,20 +36,32 @@ inputs:
     description: "pass secrets.LKEB_CERT_CHAIN"
     required: true
 
+# Ubuntu 24.04 ships with libicu 74, see https://launchpad.net/ubuntu/+source/icu
+# but we some dependencies (qt 6.8) expect libicu 73, so we download is manually
 runs:
   using: "composite"
   steps:
     - name: Install conan & build configuration
       run: |
         if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-          sudo apt-get install ninja-build
-          sudo apt-get install libtbb-dev
+          sudo apt install -y ninja-build
+          sudo apt install -y libtbb-dev
+          sudo apt install -y wget
+
+          echo "Downloading libicu73..."
+          sudo wget -q https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-Ubuntu22.04-x64.tgz
+          sudo tar -xf icu4c-73_2-Ubuntu22.04-x64.tgz
+          sudo find ./icu/usr/local/lib/ -name "*.73*" -print0 | sudo xargs -0 cp -r -t /usr/lib/x86_64-linux-gnu/
+          sudo rm -rf ./icu/
+          sudo rm -rf icu4c-73_2-Ubuntu22.04-x64.tgz
+        fi
+
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+          brew install libomp
+          export HOMEBREW_NO_AUTO_UPDATE=1
         fi
         
-        pip install wheel
-        pip install conan==1.62.0
-        pip install "markupsafe<2.1"
-        pip install -Iv cmake~=3.27.0
+        pip install conan~=1.66.0
         pip install gitpython
         pip install -v git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
 
@@ -55,7 +70,6 @@ runs:
         cmake --version
         mkdir `pwd`/_conan
         export CONAN_USER_HOME=`pwd`/_conan
-        export HOMEBREW_NO_AUTO_UPDATE=1
         conan user
 
         echo Extend conan cacert.pem
@@ -105,8 +119,8 @@ runs:
         conan profile new action_build
         conan profile update settings.os=${{ inputs.conan-build-os }} action_build
         conan profile update settings.os_build=${{ inputs.conan-build-os }} action_build
-        conan profile update settings.arch=x86_64 action_build
-        conan profile update settings.arch_build=x86_64 action_build
+        conan profile update settings.arch=${{ inputs.build-arch }} action_build
+        conan profile update settings.compiler=${{ inputs.conan-compiler }} action_build
         conan profile update settings.compiler=${{ inputs.conan-compiler }} action_build
         conan profile update settings.compiler.version=${{ inputs.conan-compiler-version }} action_build
         conan profile update settings.compiler.libcxx=${{ inputs.conan-libcxx-version}} action_build

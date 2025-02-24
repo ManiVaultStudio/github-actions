@@ -1,0 +1,10 @@
+[ 
+    {
+        "name": "Windows-msvc2022",
+        "os": "windows-2022",
+        "compiler": "msvc-2022",
+        "build-cversion": "17",
+        "build-runtime": "MD",
+        "build-config": "Release"
+    }
+]

@@ -25,7 +25,7 @@ runs:
     uses: actions/checkout@v4
     with:
       repository: ManiVaultStudio/github-actions
-      ref: main
+      ref: 2024
       path: matrix
       fetch-depth: 1
 

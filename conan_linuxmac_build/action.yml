@@ -136,6 +136,7 @@ runs:
         CXX: ${{inputs.conan-cxx}}
 
     - name: Build & upload to artifactory with conan
+      timeout-minutes: 60
       run: |
         export CONAN_USER_HOME=`pwd`/_conan
         if [ -d "./external/conan-recipes" ]; then conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable; fi

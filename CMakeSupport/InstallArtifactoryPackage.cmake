@@ -104,10 +104,12 @@ macro(get_artifactory_package
         find_artifactory_package()
         message(STATUS "package url ${package_url} - name ${package_name}")
         file(DOWNLOAD ${package_url} "${PROJECT_SOURCE_DIR}/${package_name}.tgz" HTTPHEADER "X-Jfrog-Art-Api:${APIREADTOKEN}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${LIBRARY_INSTALL_DIR}/${package_name}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xv "${PROJECT_SOURCE_DIR}/${package_name}.tgz" WORKING_DIRECTORY "${LIBRARY_INSTALL_DIR}/${package_name}")
+        set(EXTRACT_TO_DIR "${LIBRARY_INSTALL_DIR}/${package_name}")
+        message(STATUS "extract package to ${EXTRACT_TO_DIR}"
+        execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${EXTRACT_TO_DIR})
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xv "${PROJECT_SOURCE_DIR}/${package_name}.tgz" WORKING_DIRECTORY ${EXTRACT_TO_DIR})
     else()
-        # retrieve the separate Release and Debug packages  from lkeb-artifactory
+        message(STATUS "Retrieve the separate Release and Debug packages from lkeb-artifactory")
         set(option_shared "False") # hardcoded - TODO make parameter
         file(REMOVE ${PROJECT_BINARY_DIR}/aql.json)
         if (os_name STREQUAL "Windows")

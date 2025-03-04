@@ -1,6 +1,10 @@
 # common_actions
 GitHub actions that can be reused in other hdps repos for CI or other purposes.
 
+# Conan Version
+
+Branches v2.x supports conan v2.x. 
+
 ## Why is this necessary?
 
 At the time of creation (November 2020) GitHub does not have a built-in solution for centrally managed actions or workflow templates. It is an open item on the [Actions Roadmap](https://github.com/github/roadmap/issues/98).

@@ -1,10 +1,11 @@
 [ 
     {
+        "arch": "x86_64",
         "name": "Windows-msvc2019",
         "os": "windows-2019",
         "compiler": "msvc-2019",
-        "build-cversion": "192",
-        "build-runtime": "MD",
-        "build-config": "Release"
+        "build_cversion": "192",
+        "build_runtime": "dynamic",
+        "build_type": "Release"
     }
 ]

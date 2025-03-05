@@ -5,7 +5,7 @@ inputs:
   arch:
     description: "x86_64 the architecture. (TBD support arm on Windows) "
     required: true
-  build-type:
+  build_type:
     description: "Debug, Release, RelWithDebInfo also used for the runtime_type"
     required: true
   build_runtime:
@@ -20,13 +20,13 @@ inputs:
   build_cversion:
     description: "192 193 194 A three digit _MSC_VER version - e.g "
     required: true
-  conan-user:
+  conan_user:
     description: "pass secrets.LKEB_ARTIFACTORY_USER"
     required: true
-  conan-password:
+  conan_password:
     description: "pass secrets.LKEB_ARTIFACTORY_PASSWORD"
     required: true
-  conan-pem:
+  conan_pem:
     description: "pass secrets.LKEB_CERT_CHAIN"
     required: true
 
@@ -60,7 +60,7 @@ runs:
         echo "Completed setup for package: %CONAN_PACKAGE_NAME%"
       shell: cmd
       env:
-        CONAN_PEM: ${{ inputs.conan-pem }}
+        CONAN_PEM: ${{ inputs.conan_pem }}
 
     - name: Get conan config
       uses: actions/checkout@v4
@@ -96,8 +96,8 @@ runs:
 
     - name: Install conan config, authorize user and build
       run: |
-        $env.CONAN_LOGIN_USERNAME = ${{ inputs.conan-user }}
-        $env.CONAN_PASSWORD = ${{ inputs.conan-password }}
+        $env.CONAN_LOGIN_USERNAME = ${{ inputs.conan_user }}
+        $env.CONAN_PASSWORD = ${{ inputs.conan_password }}
         conan config install ./conan_config/config_dir
         conan profile show -pr profile_win
         conan remote auth lkebartifactory2
@@ -113,8 +113,8 @@ runs:
 
     - name: Upload to artifactory with conan
       run: |
-        $env.CONAN_LOGIN_USERNAME = ${{ inputs.conan-user }}
-        $env.CONAN_PASSWORD = ${{ inputs.conan-password }}
+        $env.CONAN_LOGIN_USERNAME = ${{ inputs.conan_user }}
+        $env.CONAN_PASSWORD = ${{ inputs.conan_password }}
         conan remote auth lkebartifactory2
         $env:CONAN_USER_HOME = (Get-Location).tostring() + '\_conan'
         $package_name = (conan inspect --raw name conanfile.py)

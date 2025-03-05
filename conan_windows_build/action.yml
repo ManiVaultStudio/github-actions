@@ -39,7 +39,7 @@ runs:
         pip install gitpython
         pip install git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
 
-        REM Fish the package name from the conanfile.py
+        # Fish the package name from the conanfile.py
         $conaninfo = conan inspect . -f json
         $conaninfo = $conaninfo | ConvertFrom-Json
         Write-Host "Completed setup for:" $conaninfo.name

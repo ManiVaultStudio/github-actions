@@ -1,0 +1,11 @@
+{% import "profile_vars" as vars %} 
+[settings]
+arch = {{ vars.arch }}
+build_type = {{ vars.build_config }}
+compiler = {{ vars.compiler }}
+compiler.cppstd = {{ vars.build_cppstd }}
+compiler.libcxx = {{ vars.build_runtime }}
+compiler.version = {{ vars.build_cversion }}
+os = {{ vars.os }}
+[options]
+*:shared=true

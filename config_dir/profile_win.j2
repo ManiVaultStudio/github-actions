@@ -1,0 +1,11 @@
+[settings]
+arch = {{ env['arch'] }}
+build_type = {{ env['build_config'] }}
+compiler = {{ env['compiler'] }}
+compiler.cppstd = {{ env['build_cppstd'] }}
+compiler.runtime = {{ env['build_runtime'] }}
+compiler.runtime_type = {{ env['build_runtime_type'] }}
+compiler.version = {{ env['build_cversion'] }}
+os = {{ env['os'] }}
+[options]
+*:shared={{ env['shared'] }}

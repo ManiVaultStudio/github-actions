@@ -29,7 +29,7 @@ runs:
   steps:
     - name: Install conan & build configuration
       run: |
-        pip install conan~=1.66.0
+        pip install conan
         pip install gitpython
         pip install git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
 
@@ -52,37 +52,54 @@ runs:
         REM Fish the package name from the conanfile.py
         for /f "delims=" %%i in ('conan inspect --raw name conanfile.py') do set CONAN_PACKAGE_NAME=%%i
         echo "Completed setup for package: %CONAN_PACKAGE_NAME%"
-
       shell: cmd
       env:
         CONAN_PEM: ${{ inputs.conan-pem }}
+
+    - name: Get conan config
+      uses: actions/checkout@v4
+      with:
+        ref: v2
+        repository: https://github.com/ManiVaultStudio/github-actions
+        sparse-checkout: |
+          config_dir
+        path: conan_config
 
     - name: Build with conan
       run: |
         for /f "delims=" %%i in ('where cmake') do set CONAN_CMAKE_PROGRAM="%%i"
         set CONAN_USER_HOME=%cd%\_conan
         set VS170COMNTOOLS="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools"
+      shell: pwsh
 
-        echo Add LKEB artifactory as remote at URL: %CONAN_UPLOAD%
-        conan remote add %CONAN_LKEB_ARTIFACTORY% %CONAN_UPLOAD%
-        echo Add upload user
-        conan user -r %CONAN_LKEB_ARTIFACTORY% -p ${{ inputs.conan-password }} ${{ inputs.conan-user }}
-        conan profile new action_build
-        conan profile update settings.os=Windows action_build
-        conan profile update settings.os_build=Windows action_build
-        conan profile update settings.arch=x86_64 action_build
-        conan profile update settings.compiler="Visual Studio" action_build
-        conan profile update settings.compiler.runtime=${{ inputs.conan-visual-runtime }} action_build
-        conan profile update settings.compiler.version=${{ inputs.conan-visual-version }} action_build
-        conan profile update settings.build_type=${{ inputs.conan-build-type }} action_build
-        conan profile update options.:shared=%BUILD_SHARED% action_build
-        conan profile show action_build
+    - name: Setup conan config profile from inputs
+      uses: cuchi/jinja2-action@v1.3.0
+      with:
+        template: ./conan_config/config_dir/profile_win
+        output_file: ./conan_config/config_dir/profiles/profile_win
+        strict: true
+        variables: |
+          arch=${{ inputs.arch }}
+          build_type=${{ inputs.build_type }}
+          compiler=${{ inputs.compiler }} 
+          build_cppstd = ${{ inputs.build_cppstd }}
+          build_runtime = ${{ inputs.build_runtime }}
+          build_runtime_type = ${{ inputs.build_runtime_type }}
+          build_cversion = ${{ inputs.build_cversion }}
+          os = ${{ inputs.os }}
+
+    - name: Install conan config, authorize user and build
+      run: |
+        $env.CONAN_LOGIN_USERNAME = ${{ inputs.conan-user }}
+        $env.CONAN_PASSWORD = ${{ inputs.conan-password }}
+        conan config install ./conan_config/config_dir
+        conan profile show -pr profile_win
+        conan remote auth lkebartifactory2
 
         mkdir _build
         if exist .\external\conan-recipes conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable
-        conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build
-
-      shell: cmd
+        conan create . lkeb/stable  -pr:b=profile_win -pr:h=profile_win
+      shell: pwsh
       env:
         BUILD_SHARED: True
         CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
@@ -90,12 +107,14 @@ runs:
 
     - name: Upload to artifactory with conan
       run: |
+        $env.CONAN_LOGIN_USERNAME = ${{ inputs.conan-user }}
+        $env.CONAN_PASSWORD = ${{ inputs.conan-password }}
+        conan remote auth lkebartifactory2
         $env:CONAN_USER_HOME = (Get-Location).tostring() + '\_conan'
         $package_name = (conan inspect --raw name conanfile.py)
         $package_ref = $package_name + '/*'
         echo "Uploading $package_ref  to the Artifactory"
         conan upload --all --force --confirm -r $Env:CONAN_LKEB_ARTIFACTORY $package_ref
-
       shell: pwsh
       env:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory

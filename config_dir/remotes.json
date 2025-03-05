@@ -1,0 +1,14 @@
+{
+    "remotes": [
+     {
+      "name": "lkebartifactory2",
+      "url": "https://www.lkebartifactory.nl/artifactory/api/conan/conan-local-v2",
+      "verify_ssl": false
+     },
+     {
+      "name": "conancenter",
+      "url": "https://center2.conan.io",
+      "verify_ssl": true
+     }
+    ]
+   }

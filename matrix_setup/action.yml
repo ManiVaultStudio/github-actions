@@ -2,11 +2,11 @@ name: "Matrix prepare"
 description: "Supply a matrix GITHUB_OUTPUT"
 inputs:
   matrix_ids:
-    description: | 
+    description: |
       "A list of matrix ids to be used. Choose from
 
-       - windows_2019 
-       - windows_2022 
+       - windows_2019_VC16 
+       - windows_2022_VC1710
        - linux_gcc11 
        - linux_gcc13 
        - macos_code14 [x86]
@@ -14,27 +14,27 @@ inputs:
        - macos_code16 [arm]
        
        If empty the default list is used"
-    default: 'windows_2022 linux_gcc13 macos_code14 macos_code16'
+    default: "windows_2022 linux_gcc13 macos_code14 macos_code16"
     required: false
 
 outputs:
-  matrix: 
+  matrix:
     description: "The centrally defined matrix"
     value: ${{ steps.set-matrix.outputs.matrix }}
 
 runs:
   using: "composite"
   steps:
-  - name: Get common matrix  
-    uses: actions/checkout@v4
-    with:
-      repository: ManiVaultStudio/github-actions
-      ref: main
-      path: matrix
-      fetch-depth: 1
+    - name: Get common matrix
+      uses: actions/checkout@v4
+      with:
+        repository: ManiVaultStudio/github-actions
+        ref: main
+        path: matrix
+        fetch-depth: 1
 
-  - name: Get matrix from file  
-    run: |
+    - name: Get matrix from file
+      run: |
         if [ -n "${{ inputs.matrix_ids }}" ]; then
           all_files=""
           for jfile in ""${{ inputs.matrix_ids }}""; do all_files+=" matrix/build_matrices/$jfile.json"; done
@@ -43,11 +43,11 @@ runs:
           echo "$(jq -s '[.[][]]' $all_files)" >> $GITHUB_OUTPUT
           echo EOF >> $GITHUB_OUTPUT
         fi
-    id: set-matrix 
-    shell: bash
+      id: set-matrix
+      shell: bash
 
-  - name: Log matrix
-    run: |
-      echo "Matrix content"
-      echo "${{ steps.set-matrix.outputs.matrix }}"
-    shell: bash
+    - name: Log matrix
+      run: |
+        echo "Matrix content"
+        echo "${{ steps.set-matrix.outputs.matrix }}"
+      shell: bash

@@ -3,7 +3,7 @@
         "name": "Windows-msvc2022",
         "os": "windows-2022",
         "compiler": "msvc-2022",
-        "build-cversion": "17",
+        "build-cversion": "194",
         "build-runtime": "MD",
         "build-config": "Release"
     }

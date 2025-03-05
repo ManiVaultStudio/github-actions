@@ -40,22 +40,6 @@ runs:
         pip install git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
 
         REM Fish the package name from the conanfile.py
-        conan inspect -j __props__.json -a name conanfile.py
-        for /f "delims=" %%a in ('powershell -Command "foreach ($Line in (Get-Content -Raw __props__.json | ConvertFrom-Json)) { Write-Host $Line.Name}"') do set PACKAGE_NAME=%%a
-
-        echo CMake version:
-        cmake --version
-        set CONAN_USER_HOME=%cd%\_conan
-        mkdir %CONAN_USER_HOME%
-        conan user
-
-        echo Extend conan cacert.pem
-        for /f "delims=" %%i in ('conan config home') do set CONANPEMHOME=%%i
-        SETLOCAL EnableDelayedExpansion
-        echo !CONAN_PEM! >> %CONANPEMHOME%\cacert.pem
-        ENDLOCAL
-
-        REM Fish the package name from the conanfile.py
         for /f "delims=" %%i in ('conan inspect --raw name conanfile.py') do set CONAN_PACKAGE_NAME=%%i
         echo "Completed setup for package: %CONAN_PACKAGE_NAME%"
       shell: cmd

@@ -40,9 +40,10 @@ runs:
         pip install git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
 
         REM Fish the package name from the conanfile.py
-        for /f "delims=" %%i in ('conan inspect --raw name conanfile.py') do set CONAN_PACKAGE_NAME=%%i
-        echo "Completed setup for package: %CONAN_PACKAGE_NAME%"
-      shell: cmd
+        $conaninfo = conan inspect . -f json
+        $conaninfo = $conaninfo | ConvertFrom-Json
+        Write-Host "Completed setup for:" $conaninfo.name
+      shell: pwsh
       env:
         CONAN_PEM: ${{ inputs.conan_pem }}
 
@@ -101,7 +102,9 @@ runs:
         $env.CONAN_PASSWORD = ${{ inputs.conan_password }}
         conan remote auth lkebartifactory2
         $env:CONAN_USER_HOME = (Get-Location).tostring() + '\_conan'
-        $package_name = (conan inspect --raw name conanfile.py)
+        $conaninfo = conan inspect . -f json
+        $conaninfo = $conaninfo | ConvertFrom-Json
+        $package_name = $conaninfo.name
         $package_ref = $package_name + '/*'
         echo "Uploading $package_ref  to the Artifactory"
         conan upload --all --force --confirm -r $Env:CONAN_LKEB_ARTIFACTORY $package_ref

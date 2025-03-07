@@ -61,15 +61,15 @@ runs:
       run: |
         $source = (Get-Location).Path + '/conan_config/config_dir/profile_win'
         $destination = (Get-Location).Path + '/conan_config/config_dir/profiles/profile_win'
-        jinja2  `
-          -D arch=${{ inputs.arch }} $source `
+        jinja2 $source `
+          -D arch=${{ inputs.arch }} `
           -D build_type=${{ inputs.build_type }} `
-          -D build_runtime = ${{ inputs.build_runtime }} `
-          -D build_runtime_type = ${{ inputs.build_type }} `
+          -D build_runtime=${{ inputs.build_runtime }} `
+          -D build_runtime_type=${{ inputs.build_type }} `
           -D compiler=${{ inputs.compiler }} `
-          -D build_cppstd = ${{ inputs.build_cppstd }} `
-          -D build_cversion = ${{ inputs.build_cversion }} `
-          -D os = ${{ inputs.os }} > $destination `
+          -D build_cppstd=${{ inputs.build_cppstd }} `
+          -D build_cversion=${{ inputs.build_cversion }} `
+          -D os=${{ inputs.os }} > $destination `
       shell: pwsh
 
     - name: Install conan config, authorize user and build

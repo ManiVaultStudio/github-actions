@@ -38,6 +38,7 @@ runs:
         pip install conan
         pip install gitpython
         pip install git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
+        pip install jinja2-cli
 
         # Fish the package name from the conanfile.py
         $conaninfo = conan inspect . -f json
@@ -56,21 +57,18 @@ runs:
           config_dir
         path: conan_config
 
-    - name: Setup conan config profile from inputs
-      uses: cuchi/jinja2-action@v1.3.0
-      with:
-        template: ./conan_config/config_dir/profile_win
-        output_file: ./conan_config/config_dir/profiles/profile_win
-        strict: true
-        variables: |
-          arch=${{ inputs.arch }}
-          build_type=${{ inputs.build_type }}
-          build_runtime = ${{ inputs.build_runtime }}
-          build_runtime_type = ${{ inputs.build_type }}
-          compiler=${{ inputs.compiler }} 
-          build_cppstd = ${{ inputs.build_cppstd }}
-          build_cversion = ${{ inputs.build_cversion }}
-          os = ${{ inputs.os }}
+    - name: Setup conan config profile from inputs using jinja template
+      run: |
+        jinja2 ./conan_config/config_dir/profile_win \
+          -D arch=${{ inputs.arch }} \
+          -D build_type=${{ inputs.build_type }} \
+          -D build_runtime = ${{ inputs.build_runtime }} \
+          -D build_runtime_type = ${{ inputs.build_type }} \
+          -D compiler=${{ inputs.compiler }} \
+          -D build_cppstd = ${{ inputs.build_cppstd }} \
+          -D build_cversion = ${{ inputs.build_cversion }} \
+          -D os = ${{ inputs.os }} > ./conan_config/config_dir/profiles/profile_win \
+      shell: pwsh
 
     - name: Install conan config, authorize user and build
       run: |

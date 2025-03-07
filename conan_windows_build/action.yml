@@ -71,6 +71,7 @@ runs:
           -D build_cversion=${{ inputs.build_cversion }} `
           -D os=Windows `
           -D shared=True > $destination `
+        type $destination
       shell: pwsh
 
     - name: Install conan config, authorize user and build

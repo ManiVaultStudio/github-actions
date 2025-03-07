@@ -57,10 +57,14 @@ runs:
           config_dir
         path: conan_config
 
-    - name: Setup conan config profile from inputs using jinja template
+    - name: Validate directory contents
       run: |
         echo $PWD
         dir .
+      shell: pwsh
+
+    - name: Setup conan config profile from inputs using jinja template
+      run: |
         $source = (Get-Location).Path + '/conan_config/config_dir/profile_win'
         $destination = (Get-Location).Path + '/conan_config/config_dir/profiles/profile_win'
         jinja2 $source `

@@ -14,7 +14,7 @@ inputs:
        - macos_code16 [arm]
        
        If empty the default list is used"
-    default: "windows_2022 linux_gcc13 macos_code14 macos_code16"
+    default: "windows_2022_VC1710 linux_gcc13 macos_code14 macos_code16"
     required: false
 
 outputs:

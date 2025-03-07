@@ -64,7 +64,7 @@ runs:
         dir .
         echo 'Validate conan_config'
         dir ./conan_config
-        echo 'Validate ./conan_config/profiles'
+        echo 'Validate ./conan_config/config_dir/profiles'
         dir ./conan_config/profiles
 
       shell: pwsh

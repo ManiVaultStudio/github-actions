@@ -20,12 +20,12 @@ inputs:
   build_cversion:
     description: "192 193 194 A three digit _MSC_VER version - e.g "
     required: true
-  conan_user:
-    description: "pass secrets.LKEB_ARTIFACTORY_USER"
-    required: true
-  conan_password:
-    description: "pass secrets.LKEB_ARTIFACTORY_PASSWORD"
-    required: true
+  # conan_user:
+  #   description: "pass secrets.LKEB_ARTIFACTORY_USER"
+  #   required: true
+  # conan_password:
+  #   description: "pass secrets.LKEB_ARTIFACTORY_PASSWORD"
+  #   required: true
   conan_pem:
     description: "pass secrets.LKEB_CERT_CHAIN"
     required: true
@@ -76,8 +76,7 @@ runs:
         $env:CONAN_CMAKE_PROGRAM = (Get-Command cmake).Path
         $env:CONAN_USER_HOME = (Get-Location).Path + "\_conan"
         $env:VS170COMNTOOLS = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools"
-        $env:CONAN_LOGIN_USERNAME = ${{ inputs.conan_user }}
-        $env:CONAN_PASSWORD = ${{ inputs.conan_password }}
+
         $configdir = (Get-Location).Path + '/conan_config/config_dir'
         conan config install $configdir
         conan profile show -pr profile_win
@@ -93,11 +92,11 @@ runs:
         BUILD_SHARED: True
         CONAN_UPLOAD: https://www.lkebartifactory.nl/artifactory/api/conan/conan-local-v2
         CONAN_LKEB_ARTIFACTORY: lkebartifactory2
+        CONAN_LOGIN_USERNAME: ${{ secrets.LKEB_ARC2_UPLOAD_USER }}
+        CONAN_PASSWORD: ${{ secrets.LKEB_ARC2_UPLOAD_PASSWORD }}
 
     - name: Upload to artifactory with conan
       run: |
-        $env:CONAN_LOGIN_USERNAME = ${{ inputs.conan_user }}
-        $env:CONAN_PASSWORD = ${{ inputs.conan_password }}
         conan remote auth lkebartifactory2
         $env:CONAN_USER_HOME = (Get-Location).Path + '\_conan'
         $conaninfo = conan inspect . -f json
@@ -109,3 +108,5 @@ runs:
       shell: pwsh
       env:
         CONAN_LKEB_ARTIFACTORY: lkebartifactory2
+        CONAN_LOGIN_USERNAME: ${{ secrets.LKEB_ARC2_UPLOAD_USER }}
+        CONAN_PASSWORD: ${{ secrets.LKEB_ARC2_UPLOAD_PASSWORD }}

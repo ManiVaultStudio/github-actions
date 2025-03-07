@@ -78,7 +78,8 @@ runs:
         $env:VS170COMNTOOLS = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools"
         $env.CONAN_LOGIN_USERNAME = ${{ inputs.conan_user }}
         $env.CONAN_PASSWORD = ${{ inputs.conan_password }}
-        conan config install (Get-Location).Path + '/conan_config/config_dir'
+        $configdir = (Get-Location).Path + '/conan_config/config_dir'
+        conan config install $configdir
         conan profile show -pr profile_win
         conan remote auth lkebartifactory2
 

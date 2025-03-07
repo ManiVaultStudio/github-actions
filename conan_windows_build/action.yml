@@ -44,6 +44,8 @@ runs:
         $conaninfo = conan inspect . -f json
         $conaninfo = $conaninfo | ConvertFrom-Json
         Write-Host "Completed setup for:" $conaninfo.name
+        Write-Host "Inputs: - ${{ inputs.arch }} - ${{ inputs.build_type }} - ${{ inputs.build_runtime }} - ${{ inputs.build_type }} - ${{ inputs.compiler }} - ${{ inputs.build_cppstd }} - ${{ inputs.build_cversion }} - ${{ inputs.os }}"
+
       shell: pwsh
       env:
         CONAN_PEM: ${{ inputs.conan_pem }}
@@ -59,7 +61,6 @@ runs:
       run: |
         $source = (Get-Location).Path + '/conan_config/config_dir/profile_win.j2'
         $destination = (Get-Location).Path + '/conan_config/config_dir/profiles/default'
-        Write-Host "-" ${{ inputs.arch }} "-" ${{ inputs.build_type }} "-" ${{ inputs.build_runtime }} "-" ${{ inputs.build_type }} "-" ${{ inputs.compiler }} "-" ${{ inputs.build_cppstd }} "-" ${{ inputs.build_cversion }} "-" ${{ inputs.os }}
         jinja2 $source `
           -D arch=${{ inputs.arch }} `
           -D build_type=${{ inputs.build_type }} `

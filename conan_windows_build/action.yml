@@ -62,7 +62,10 @@ runs:
       run: |
         echo $PWD
         dir .
+        echo 'Validate conan_config'
         dir ./conan_config
+        echo 'Validate ./conan_config/profiles'
+        dir ./conan_config/profiles
 
       shell: pwsh
 

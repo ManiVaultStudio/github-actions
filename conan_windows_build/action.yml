@@ -44,6 +44,7 @@ runs:
         $conaninfo = conan inspect . -f json
         $conaninfo = $conaninfo | ConvertFrom-Json
         Write-Host "Completed setup for:" $conaninfo.name
+        Write-Host "Password: "${{ inputs.conan_password }}
       shell: pwsh
       env:
         CONAN_PEM: ${{ inputs.conan_pem }}

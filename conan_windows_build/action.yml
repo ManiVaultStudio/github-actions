@@ -61,6 +61,8 @@ runs:
         dir .
         echo 'Validate conan_config'
         dir ./conan_config
+        echo 'Validate /conan_config/config_dir'
+        dir ./conan_config/config_dir
       shell: pwsh
 
     - name: Validate lower directory contents

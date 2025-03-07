@@ -55,6 +55,7 @@ runs:
         repository: ManiVaultStudio/github-actions
         sparse-checkout: |
           config_dir
+        sparse-checkout-cone-mode: false
         path: conan_config
 
     - name: Validate directory contents

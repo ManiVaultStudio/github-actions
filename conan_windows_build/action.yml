@@ -59,15 +59,15 @@ runs:
 
     - name: Setup conan config profile from inputs using jinja template
       run: |
-        jinja2 ./conan_config/config_dir/profile_win \
-          -D arch=${{ inputs.arch }} \
-          -D build_type=${{ inputs.build_type }} \
-          -D build_runtime = ${{ inputs.build_runtime }} \
-          -D build_runtime_type = ${{ inputs.build_type }} \
-          -D compiler=${{ inputs.compiler }} \
-          -D build_cppstd = ${{ inputs.build_cppstd }} \
-          -D build_cversion = ${{ inputs.build_cversion }} \
-          -D os = ${{ inputs.os }} > ./conan_config/config_dir/profiles/profile_win \
+        jinja2 ./conan_config/config_dir/profile_win `
+          -D arch=${{ inputs.arch }} `
+          -D build_type=${{ inputs.build_type }} `
+          -D build_runtime = ${{ inputs.build_runtime }} `
+          -D build_runtime_type = ${{ inputs.build_type }} `
+          -D compiler=${{ inputs.compiler }} `
+          -D build_cppstd = ${{ inputs.build_cppstd }} `
+          -D build_cversion = ${{ inputs.build_cversion }} `
+          -D os = ${{ inputs.os }} > ./conan_config/config_dir/profiles/profile_win `
       shell: pwsh
 
     - name: Install conan config, authorize user and build

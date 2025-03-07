@@ -56,13 +56,6 @@ runs:
           config_dir
         path: conan_config
 
-    - name: Build with conan
-      run: |
-        for /f "delims=" %%i in ('where cmake') do set CONAN_CMAKE_PROGRAM="%%i"
-        set CONAN_USER_HOME=%cd%\_conan
-        set VS170COMNTOOLS="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools"
-      shell: pwsh
-
     - name: Setup conan config profile from inputs
       uses: cuchi/jinja2-action@v1.3.0
       with:
@@ -81,6 +74,9 @@ runs:
 
     - name: Install conan config, authorize user and build
       run: |
+        $env:CONAN_CMAKE_PROGRAM = (Get-Command cmake).Path
+        $env:CONAN_USER_HOME = (Get-Location).Path + "\_conan"
+        $env:VS170COMNTOOLS = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools"
         $env.CONAN_LOGIN_USERNAME = ${{ inputs.conan_user }}
         $env.CONAN_PASSWORD = ${{ inputs.conan_password }}
         conan config install ./conan_config/config_dir
@@ -101,7 +97,7 @@ runs:
         $env.CONAN_LOGIN_USERNAME = ${{ inputs.conan_user }}
         $env.CONAN_PASSWORD = ${{ inputs.conan_password }}
         conan remote auth lkebartifactory2
-        $env:CONAN_USER_HOME = (Get-Location).tostring() + '\_conan'
+        $env:CONAN_USER_HOME = (Get-Location).Path + '\_conan'
         $conaninfo = conan inspect . -f json
         $conaninfo = $conaninfo | ConvertFrom-Json
         $package_name = $conaninfo.name

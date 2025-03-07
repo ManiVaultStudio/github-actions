@@ -55,22 +55,6 @@ runs:
         repository: ManiVaultStudio/github-actions
         path: conan_config
 
-    - name: Validate directory contents
-      run: |
-        echo $PWD
-        dir .
-        echo 'Validate conan_config'
-        dir ./conan_config
-        echo 'Validate /conan_config/config_dir'
-        dir ./conan_config/config_dir
-      shell: pwsh
-
-    - name: Validate lower directory contents
-      run: |
-        echo 'Validate ./conan_config/config_dir/profiles'
-        dir ./conan_config/config_dir/profiles
-      shell: pwsh
-
     - name: Setup conan config profile from inputs using jinja template
       run: |
         $source = (Get-Location).Path + '/conan_config/config_dir/profile_win.j2'

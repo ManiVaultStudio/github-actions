@@ -61,6 +61,8 @@ runs:
       run: |
         echo $PWD
         dir .
+        dir ./conan_config
+
       shell: pwsh
 
     - name: Setup conan config profile from inputs using jinja template

@@ -20,12 +20,12 @@ inputs:
   build_cversion:
     description: "192 193 194 A three digit _MSC_VER version - e.g "
     required: true
-  # conan_user:
-  #   description: "pass secrets.LKEB_ARTIFACTORY_USER"
-  #   required: true
-  # conan_password:
-  #   description: "pass secrets.LKEB_ARTIFACTORY_PASSWORD"
-  #   required: true
+  conan_user:
+    description: "pass secrets.LKEB_ARTIFACTORY_USER"
+    required: true
+  conan_password:
+    description: "pass secrets.LKEB_ARTIFACTORY_PASSWORD"
+    required: true
   conan_pem:
     description: "pass secrets.LKEB_CERT_CHAIN"
     required: true
@@ -92,8 +92,8 @@ runs:
         BUILD_SHARED: True
         CONAN_UPLOAD: https://www.lkebartifactory.nl/artifactory/api/conan/conan-local-v2
         CONAN_LKEB_ARTIFACTORY: lkebartifactory2
-        CONAN_LOGIN_USERNAME: ${{ secrets.LKEB_ARC2_UPLOAD_USER }}
-        CONAN_PASSWORD: ${{ secrets.LKEB_ARC2_UPLOAD_PASSWORD }}
+        CONAN_LOGIN_USERNAME: ${{ inputs.conan_user }}
+        CONAN_PASSWORD: ${{ inputs.conan_password}}
 
     - name: Upload to artifactory with conan
       run: |
@@ -108,5 +108,5 @@ runs:
       shell: pwsh
       env:
         CONAN_LKEB_ARTIFACTORY: lkebartifactory2
-        CONAN_LOGIN_USERNAME: ${{ secrets.LKEB_ARC2_UPLOAD_USER }}
-        CONAN_PASSWORD: ${{ secrets.LKEB_ARC2_UPLOAD_PASSWORD }}
+        CONAN_LOGIN_USERNAME: ${{ inputs.conan_user }}
+        CONAN_PASSWORD: ${{ inputs.conan_password}}

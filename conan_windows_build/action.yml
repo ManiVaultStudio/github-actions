@@ -70,7 +70,7 @@ runs:
           -D build_cppstd=${{ inputs.build_cppstd }} `
           -D build_cversion=${{ inputs.build_cversion }} `
           -D os=Windows `
-          -D shared=True > $destination `
+          -D shared=True > $destination
       shell: pwsh
 
     - name: Install conan config, authorize user and build

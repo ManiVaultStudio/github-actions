@@ -21,10 +21,10 @@ inputs:
     description: "192 193 194 A three digit _MSC_VER version - e.g "
     required: true
   conan_user:
-    description: "pass secrets.LKEB_ARTIFACTORY_USER"
+    description: "pass secrets.LKEB_ARC2_UPLOAD_USER"
     required: true
   conan_password:
-    description: "pass secrets.LKEB_ARTIFACTORY_PASSWORD"
+    description: "pass secrets.LKEB_ARC2_UPLOAD_PASSWORD"
     required: true
   conan_pem:
     description: "pass secrets.LKEB_CERT_CHAIN"
@@ -44,7 +44,7 @@ runs:
         $conaninfo = conan inspect . -f json
         $conaninfo = $conaninfo | ConvertFrom-Json
         Write-Host "Completed setup for:" $conaninfo.name
-        Write-Host "Inputs: - ${{ inputs.arch }} - ${{ inputs.build_type }} - ${{ inputs.build_runtime }} - ${{ inputs.build_type }} - ${{ inputs.compiler }} - ${{ inputs.build_cppstd }} - ${{ inputs.build_cversion }} - ${{ inputs.os }}"
+        Write-Host "Inputs: - ${{ inputs.arch }} - ${{ inputs.build_type }} - ${{ inputs.build_runtime }} - ${{ inputs.compiler }} - ${{ inputs.build_cppstd }} - ${{ inputs.build_cversion }}"
 
       shell: pwsh
       env:
@@ -69,7 +69,7 @@ runs:
           -D compiler=${{ inputs.compiler }} `
           -D build_cppstd=${{ inputs.build_cppstd }} `
           -D build_cversion=${{ inputs.build_cversion }} `
-          -D os=${{ inputs.os }} `
+          -D os=Windows `
           -D shared=True > $destination `
       shell: pwsh
 
@@ -81,14 +81,14 @@ runs:
 
         $configdir = (Get-Location).Path + '/conan_config/config_dir'
         conan config install $configdir
-        conan profile show -pr profile_win
+        conan profile show -pr default
         conan remote auth lkebartifactory2
 
         mkdir _build
         if (Test-Path -path ".\external\conan-recipes") {
           conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable
         }
-        conan create . lkeb/stable  -pr:b=profile_win -pr:h=profile_win
+        conan create . --user lkeb --channel stable  -pr:b=default -pr:h=default
       shell: pwsh
       env:
         BUILD_SHARED: True

@@ -60,7 +60,7 @@ runs:
     - name: Setup conan config profile from inputs using jinja template
       run: |
         $source = (Get-Location).Path + '/conan_config/config_dir/profile_win.j2'
-        $destination = (Get-Location).Path + '/conan_config/config_dir/profiles/default'
+
         jinja2 $source `
           -D arch=${{ inputs.arch }} `
           -D build_type=${{ inputs.build_type }} `
@@ -71,7 +71,6 @@ runs:
           -D build_cversion=${{ inputs.build_cversion }} `
           -D os=Windows `
           -D shared=True > $destination `
-        type $destination
       shell: pwsh
 
     - name: Install conan config, authorize user and build
@@ -79,7 +78,8 @@ runs:
         $env:CONAN_CMAKE_PROGRAM = (Get-Command cmake).Path
         $env:CONAN_USER_HOME = (Get-Location).Path + "\_conan"
         $env:VS170COMNTOOLS = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools"
-
+        $destination = (Get-Location).Path + '/conan_config/config_dir/profiles/default'
+        type $destination
         $configdir = (Get-Location).Path + '/conan_config/config_dir'
         conan config install $configdir
         conan profile show -pr default

@@ -28,8 +28,7 @@ runs:
     - name: Get common matrix
       uses: actions/checkout@v4
       with:
-        repository: ManiVaultStudio/github-actions
-        ref: v2
+        repository: ManiVaultStudio/github-actions@v2
         path: matrix
         fetch-depth: 1
 

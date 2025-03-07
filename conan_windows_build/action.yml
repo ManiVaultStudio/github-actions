@@ -83,7 +83,8 @@ runs:
           -D compiler=${{ inputs.compiler }} `
           -D build_cppstd=${{ inputs.build_cppstd }} `
           -D build_cversion=${{ inputs.build_cversion }} `
-          -D os=${{ inputs.os }} > $destination `
+          -D os=${{ inputs.os }} `
+          -D shared=True > $destination `
       shell: pwsh
 
     - name: Install conan config, authorize user and build

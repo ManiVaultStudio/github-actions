@@ -99,7 +99,9 @@ runs:
         conan remote auth lkebartifactory2
 
         mkdir _build
-        if exist .\external\conan-recipes conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable
+        if (Test-Path -path ".\external\conan-recipes") {
+          conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable
+        }
         conan create . lkeb/stable  -pr:b=profile_win -pr:h=profile_win
       shell: pwsh
       env:

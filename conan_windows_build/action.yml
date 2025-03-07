@@ -60,7 +60,7 @@ runs:
     - name: Setup conan config profile from inputs using jinja template
       run: |
         $source = (Get-Location).Path + '/conan_config/config_dir/profile_win.j2'
-
+        $destination = (Get-Location).Path + '/conan_config/config_dir/profiles/default'
         jinja2 `
           -D arch=${{ inputs.arch }} `
           -D build_type=${{ inputs.build_type }} `
@@ -71,6 +71,7 @@ runs:
           -D build_cversion=${{ inputs.build_cversion }} `
           -D os=Windows `
           -D shared=True $source > $destination
+        dir (Get-Location).Path + '/conan_config/config_dir/profiles
       shell: pwsh
 
     - name: Install conan config, authorize user and build

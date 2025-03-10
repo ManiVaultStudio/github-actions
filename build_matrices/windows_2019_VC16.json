@@ -2,7 +2,7 @@
     {
         "arch": "x86_64",
         "name": "Windows-msvc2019",
-        "os": "windows-2019",
+        "os": "Windows",
         "compiler": "msvc",
         "build_cversion": "192",
         "build_cppstd": "20",

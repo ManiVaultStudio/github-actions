@@ -2,9 +2,9 @@
     {
         "arch": "x86_64",
         "name": "Windows-msvc2022",
-        "os": "windows-2022",
+        "os": "Windows",
         "compiler": "msvc",
-        "build_cversion": "193",
+        "build_cversion": "194",
         "build_cppstd": "20",
         "build_runtime": "dynamic",
         "build_type": "Release"

@@ -65,6 +65,7 @@ runs:
         jinja2 `
           -D arch=${{ inputs.arch }} `
           -D build_type=${{ inputs.build_type }} `
+          -D build_cppstd=${{ inputs.build_cppstd }}
           -D build_runtime=${{ inputs.build_runtime }} `
           -D build_runtime_type=${{ inputs.build_type }} `
           -D compiler=${{ inputs.compiler }} `

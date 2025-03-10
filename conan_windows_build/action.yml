@@ -57,6 +57,7 @@ runs:
         repository: ManiVaultStudio/github-actions
         path: conan_config
 
+    # Removed build_cppstd from profile
     - name: Setup conan config profile from inputs using jinja template
       run: |
         $source = (Get-Location).Path + '/conan_config/config_dir/profile_win.j2'
@@ -67,7 +68,6 @@ runs:
           -D build_runtime=${{ inputs.build_runtime }} `
           -D build_runtime_type=${{ inputs.build_type }} `
           -D compiler=${{ inputs.compiler }} `
-          -D build_cppstd=${{ inputs.build_cppstd }} `
           -D build_cversion=${{ inputs.build_cversion }} `
           -D os=Windows `
           -D shared=True $source > $destination

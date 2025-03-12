@@ -166,7 +166,7 @@ runs:
           conan build . --output-folder build -pr:b=default -pr:h=default -s build_type=$build_type --build=missing
         }
 
-        conan export_pkg build
+        conan export-pkg build
 
       shell: pwsh
       env:

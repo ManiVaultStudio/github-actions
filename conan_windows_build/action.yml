@@ -91,17 +91,20 @@ runs:
         repository: ManiVaultStudio/github-actions
         path: conan_config
 
-    # Removed build_cppstd from profile
+    # Make the profile - the build type is the first in the list
+    # if multiple build types are used
     - name: Setup conan config profile from inputs using jinja template
       run: |
         $source = (Get-Location).Path + '/conan_config/config_dir/profile_win.j2'
         $destination = (Get-Location).Path + '/conan_config/config_dir/profiles/default'
+        $build_type = "${{ inputs.build_type }}"
+        $build_list = $build_type.Split(',')
         jinja2 `
           -D arch=${{ inputs.arch }} `
-          -D build_type=${{ inputs.build_type }} `
+          -D build_type=$build_list[0] `
           -D build_cppstd=${{ inputs.build_cppstd }} `
           -D build_runtime=${{ inputs.build_runtime }} `
-          -D build_runtime_type=${{ inputs.build_type }} `
+          -D build_runtime_type=$build_list[0] `
           -D compiler=${{ inputs.compiler }} `
           -D build_cversion=${{ inputs.build_cversion }} `
           -D os=Windows `

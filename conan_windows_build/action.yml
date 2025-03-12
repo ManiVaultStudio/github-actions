@@ -59,8 +59,8 @@ runs:
       run: |
         $build_type = "${{ inputs.build_type }}"
         $check_list = $build_type.Split(',')
-        if ($check_list.Length -eq 1) { "multi_build=$false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append}
-        elseif ($check_list.Length -gt 1) {"multi_build=$true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append}
+        if ($check_list.Length -eq 1) { Write-Output "multi_build=$false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append}
+        elseif ($check_list.Length -gt 1) { Write-Output "multi_build=$true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append}
         else {
           Write-Host "Invalid build_type input"
           exit 1

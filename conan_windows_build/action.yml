@@ -59,8 +59,8 @@ runs:
       run: |
         $build_type = "${{ inputs.build_type }}"
         $check_list = $build_type.Split(',')
-        if ($check_list.Length -eq 1) { Write-Output "multi_build=$false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append}
-        elseif ($check_list.Length -gt 1) { Write-Output "multi_build=$true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append}
+        if ($check_list.Length -eq 1) { "multi_build=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append}
+        elseif ($check_list.Length -gt 1) { "multi_build=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append}
         else {
           Write-Host "Invalid build_type input"
           exit 1
@@ -111,7 +111,7 @@ runs:
       shell: pwsh
 
     - name: Install conan config, authorize user and single conan build build
-      if: ${{ steps.check_build_type.multi_build }} == "false"
+      if: steps.check_build_type.multi_build == "false"
       run: |
         Write-Host "Running multi build setting: " + "${{ steps.check_build_type.multi_build }}"
         $env:CONAN_CMAKE_PROGRAM = (Get-Command cmake).Path
@@ -138,7 +138,7 @@ runs:
         CONAN_PASSWORD: ${{ inputs.conan_password}}
 
     - name: Install conan config, authorize user and single conan build build
-      if: ${{ steps.check_build_type.multi_build }} == "true"
+      if: steps.check_build_type.multi_build == "true"
       run: |
         Write-Host "Running multi build setting: " + "${{ steps.check_build_type.multi_build }}"
         Write-Host "To be created"

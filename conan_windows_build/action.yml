@@ -6,7 +6,23 @@ inputs:
     description: "x86_64 the architecture. (TBD support arm on Windows) "
     required: true
   build_type:
-    description: "Debug, Release, RelWithDebInfo also used for the runtime_type"
+    description: |
+      "Debug, Release, RelWithDebInfo also used for the runtime_type
+
+      If the is a single type a single conan create (including packaging is performed) is performed.
+
+      Otherwise a comma separated list of build types must be provided e.g.:
+      'Release,Debug'. 
+
+      When a list is supplied a series of conan builds will take place 
+      for each build_type followed by a single packaging step which
+      will place all build outputs into a single artifactory package with
+      several build_type sub directories. 
+
+      This supports repos where single build_type packages are retrieved from
+      conancenter.
+
+      In both cases the conanfile should be written to support this"
     required: true
   build_runtime:
     description: "dynamic or static - usually dynamic i.e. MD"
@@ -29,10 +45,27 @@ inputs:
   conan_pem:
     description: "pass secrets.LKEB_CERT_CHAIN"
     required: true
+  multi_build_types:
+    description: |
+
+    default: ""
+    required: false
 
 runs:
   using: "composite"
   steps:
+    - name: Check build type
+      id: check_build_type
+      run: |
+        $check_list = ${{ inputs.build_type }}.Split(',')
+        if ($check_list.Length -eq 1) { "multi_build=$false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append}
+        elseif ($check_list.Length -gt 1) {"multi_build=$true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append}
+        else {
+          Write-Host "Invalid build_type input"
+          exit 1
+        }
+      shell: pwsh
+
     - name: Install conan & build configuration
       run: |
         pip install conan
@@ -76,7 +109,8 @@ runs:
         dir $destdir
       shell: pwsh
 
-    - name: Install conan config, authorize user and build
+    - name: Install conan config, authorize user and single conan build build
+      if: ${{ steps.check_build_type.multi_build }} == "false"
       run: |
         $env:CONAN_CMAKE_PROGRAM = (Get-Command cmake).Path
         $env:CONAN_USER_HOME = (Get-Location).Path + "\_conan"
@@ -93,6 +127,19 @@ runs:
           conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable
         }
         conan create . --user lkeb --channel stable  -pr:b=default -pr:h=default
+      shell: pwsh
+      env:
+        BUILD_SHARED: True
+        CONAN_UPLOAD: https://www.lkebartifactory.nl/artifactory/api/conan/conan-local-v2
+        CONAN_LKEB_ARTIFACTORY: lkebartifactory2
+        CONAN_LOGIN_USERNAME: ${{ inputs.conan_user }}
+        CONAN_PASSWORD: ${{ inputs.conan_password}}
+
+    - name: Install conan config, authorize user and single conan build build
+      if: ${{ steps.check_build_type.multi_build }} == "true"
+      run: |
+        Write-Host "To be created"
+        exit 1
       shell: pwsh
       env:
         BUILD_SHARED: True

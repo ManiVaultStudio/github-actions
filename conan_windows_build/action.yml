@@ -57,7 +57,7 @@ runs:
     - name: Check build type
       id: check_build_type
       run: |
-        $build_type = ${{ inputs.build_type }}
+        $build_type = "${{ inputs.build_type }}"
         $check_list = $build_type.Split(',')
         if ($check_list.Length -eq 1) { "multi_build=$false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append}
         elseif ($check_list.Length -gt 1) {"multi_build=$true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append}

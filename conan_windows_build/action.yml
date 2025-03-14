@@ -163,14 +163,15 @@ runs:
         $build_list = $build_type.Split(',')
 
         foreach ($build_type in $build_list) {
-          conan build . --output-folder build -pr:b=default -pr:h=default -s build_type=$build_type --build=missing
+          conan build . -pr:b=default -pr:h=default -s build_type=$build_type --build=missing
         }
 
         $conaninfo = conan inspect . -f json
         $conaninfo = $conaninfo | ConvertFrom-Json
         $package_name = $conaninfo.name
+        $package_version = $conaninfo.version
 
-        conan export-pkg . --name=package_name --build-folder=build
+        conan export-pkg . --name=$package_name --version=$package_version
 
       shell: pwsh
       env:

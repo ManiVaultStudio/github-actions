@@ -150,7 +150,6 @@ runs:
         conan config install $configdir
         conan profile show -pr default
         conan remote auth lkebartifactory2
-
         mkdir _build
 
         $build_type = "${{ inputs.build_type }}"
@@ -169,7 +168,7 @@ runs:
 
         foreach ($build_type in $build_list) {
           Write-Host "Packaging:" $build_type
-          conan export-pkg . --name=$package_name --version=$package_version --user lkeb --channel stable -s build_type=$build_type
+          conan export-pkg . --name=$package_name --version=$package_version --user lkeb --channel stable -s build_type=$build_type -cc core.scm:excluded="*"
         }
 
       shell: pwsh

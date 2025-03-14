@@ -150,7 +150,6 @@ runs:
         conan config install $configdir
         conan profile show -pr default
         conan remote auth lkebartifactory2
-        conan config set general.revisions_enabled=False
 
         mkdir _build
 

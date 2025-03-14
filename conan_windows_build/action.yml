@@ -171,7 +171,9 @@ runs:
         $package_name = $conaninfo.name
         $package_version = $conaninfo.version
 
-        conan export-pkg . --name=$package_name --version=$package_version
+        foreach ($build_type in $build_list) {
+          conan export-pkg . --name=$package_name --version=$package_version --user lkeb --channel stable -s build_type=$build_type
+        }
 
       shell: pwsh
       env:

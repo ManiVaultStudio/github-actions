@@ -159,7 +159,7 @@ runs:
 
         foreach ($build_type in $build_list) {
           Write-Host "Building:" $build_type
-          conan build . -pr:b=default -pr:h=default -s build_type=$build_type -s --build=missing
+          conan build . -pr:b=default -pr:h=default -s build_type=$build_type --build=missing
         }
 
         $conaninfo = conan inspect . -f json

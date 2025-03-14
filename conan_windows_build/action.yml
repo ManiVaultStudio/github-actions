@@ -116,7 +116,7 @@ runs:
     - name: Install conan config, authorize user and single conan build build
       if: steps.check_build_type.outputs.multi_build == 'false'
       run: |
-        Write-Host "Running multi build setting: " + "${{ steps.check_build_type.outputs.multi_build }}"
+        Write-Host "Single build_type build "
         $env:CONAN_CMAKE_PROGRAM = (Get-Command cmake).Path
         $env:CONAN_USER_HOME = (Get-Location).Path + "\_conan"
         $env:VS170COMNTOOLS = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools"
@@ -140,7 +140,7 @@ runs:
     - name: Install conan config, authorize user and single conan build build
       if: steps.check_build_type.outputs.multi_build == 'true'
       run: |
-        Write-Host "Running multi build setting: " + "${{ steps.check_build_type.outputs.multi_build }}"
+        Write-Host "Multi build_type build"
         $env:CONAN_CMAKE_PROGRAM = (Get-Command cmake).Path
         $env:CONAN_USER_HOME = (Get-Location).Path + "\_conan"
         $env:VS170COMNTOOLS = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools"

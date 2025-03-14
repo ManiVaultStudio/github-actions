@@ -128,9 +128,6 @@ runs:
         conan remote auth lkebartifactory2
 
         mkdir _build
-        if (Test-Path -path ".\external\conan-recipes") {
-          conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable
-        }
         conan create . --user lkeb --channel stable  -pr:b=default -pr:h=default
       shell: pwsh
       env:
@@ -155,9 +152,6 @@ runs:
         conan remote auth lkebartifactory2
 
         mkdir _build
-        if (Test-Path -path ".\external\conan-recipes") {
-          conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable
-        }
 
         $build_type = "${{ inputs.build_type }}"
         $build_list = $build_type.Split(',')

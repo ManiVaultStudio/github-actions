@@ -163,7 +163,7 @@ runs:
         $build_list = $build_type.Split(',')
 
         foreach ($build_type in $build_list) {
-          conan build . -pr:b=default -pr:h=default -s build_type=$build_type --build=missing
+          conan build . -pr:b=default -pr:h=default -s build_type=$build_type -s compiler.runtime_type=$build_type --build=missing
         }
 
         $conaninfo = conan inspect . -f json
@@ -172,7 +172,7 @@ runs:
         $package_version = $conaninfo.version
 
         foreach ($build_type in $build_list) {
-          conan export-pkg . --name=$package_name --version=$package_version --user lkeb --channel stable -s build_type=$build_type
+          conan export-pkg . --name=$package_name --version=$package_version --user lkeb --channel stable -s build_type=$build_type -s compiler.runtime_type=$build_type 
         }
 
       shell: pwsh

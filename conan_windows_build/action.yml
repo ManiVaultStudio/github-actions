@@ -155,7 +155,7 @@ runs:
 
         $build_type = "${{ inputs.build_type }}"
         $build_list = $build_type.Split(',')
-        Write-Hosts "Building build types:" $build_list
+        Write-Host "Building build types:" $build_list
 
         foreach ($build_type in $build_list) {
           Write-Host "Building:" $build_type

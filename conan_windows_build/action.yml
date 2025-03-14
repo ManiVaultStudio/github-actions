@@ -155,8 +155,10 @@ runs:
 
         $build_type = "${{ inputs.build_type }}"
         $build_list = $build_type.Split(',')
+        Write-Hosts "Building build types:" $build_list
 
         foreach ($build_type in $build_list) {
+          Write-Host "Building:" $build_type
           conan build . -pr:b=default -pr:h=default -s build_type=$build_type -s --build=missing
         }
 
@@ -166,6 +168,7 @@ runs:
         $package_version = $conaninfo.version
 
         foreach ($build_type in $build_list) {
+          Write-Host "Packaging:" $build_type
           conan export-pkg . --name=$package_name --version=$package_version --user lkeb --channel stable -s build_type=$build_type
         }
 

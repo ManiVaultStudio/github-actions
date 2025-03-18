@@ -50,7 +50,7 @@ endmacro(get_settings)
 
 macro(dump_file 
     file_path msg_prefix)
-    file(READ file_path file_contents)
+    file(READ ${file_path} file_contents)
     message("${msg_prefix} ${file_contents}")
 endmacro()
 

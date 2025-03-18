@@ -48,6 +48,12 @@ macro(get_settings)
 
 endmacro(get_settings)
 
+macro(dump_file 
+    file_path msg_prefix)
+    file(READ file_path file_contents)
+    message("${msg_prefix} ${file_contents}")
+endmacro()
+
 function(find_artifactory_package)
     file(REMOVE aql_out.txt)
     set(CURL_COMMAND)
@@ -65,10 +71,12 @@ function(find_artifactory_package)
     endforeach()
 
     if (res_length LESS 1)
+        dump_file("${PROJECT_BINARY_DIR}/aql.json" "Search file contents")
         message(FATAL_ERROR "No matching artifactory packages found. Please check the query.")
     endif()
 
     if (res_length GREATER 1)
+        dump_file("${PROJECT_BINARY_DIR}/aql.json" "Search file contents")
         message(FATAL_ERROR "Too many matching artifactory packages found. Contact the HDPS group for more info and supply the aql_out.txt and aql.json files")
     endif()
 

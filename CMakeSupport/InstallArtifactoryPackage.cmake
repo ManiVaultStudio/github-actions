@@ -116,7 +116,8 @@ macro(get_artifactory_package
         set(EXTRACT_TO_DIR "${LIBRARY_INSTALL_DIR}/${package_name}")
         message(STATUS "extract package to ${EXTRACT_TO_DIR} from file ${DOWNLOADED_FILE}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${EXTRACT_TO_DIR})
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvft ${DOWNLOADED_FILE} WORKING_DIRECTORY ${EXTRACT_TO_DIR})
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ${DOWNLOADED_FILE} WORKING_DIRECTORY ${EXTRACT_TO_DIR} STATUS download_result)
+        message(STATUS "download result: ${download_result}")
     else()
         message(STATUS "Retrieve the separate Release and Debug packages from lkeb-artifactory")
         set(option_shared "False") # hardcoded - TODO make parameter

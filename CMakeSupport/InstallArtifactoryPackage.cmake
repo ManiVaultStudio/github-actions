@@ -112,6 +112,7 @@ macro(get_artifactory_package
         find_artifactory_package()
         message(STATUS "package url ${package_url} - name ${package_name}")
         set(DOWNLOADED_FILE "${PROJECT_SOURCE_DIR}/${package_name}.tgz")
+        set(CMAKE_TLS_VERIFY FALSE)
         file(DOWNLOAD ${package_url} ${DOWNLOADED_FILE} HTTPHEADER "X-Jfrog-Art-Api:${APIREADTOKEN}" STATUS download_result)
         message(STATUS "Download result: ${download_result}")
         set(EXTRACT_TO_DIR "${LIBRARY_INSTALL_DIR}/${package_name}")

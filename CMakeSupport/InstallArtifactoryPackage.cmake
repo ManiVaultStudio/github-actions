@@ -104,7 +104,7 @@ endfunction()
 
 macro(get_artifactory_package
         package_name package_version package_builder
-        compiler_name compiler_version os_name is_combined_package package_arch)
+        compiler_name compiler_version os_name is_combined_package package_arch channel)
     if(is_combined_package)
         # retrieve the single combined package from lkeb-artifactory
         file(REMOVE ${PROJECT_BINARY_DIR}/aql.json)
@@ -163,8 +163,9 @@ endmacro()
 # is_combined_package: either TRUE or FALSE:
 #           TRUE - the package contains both debug and release
 #           FALSE - the package contains either debug or release 
+# channel: optional - the channel to be used. The default channel is stable, the alternative is python
 
-function(install_artifactory_package package_name package_version package_builder is_combined_package)
+function(install_artifactory_package package_name package_version package_builder is_combined_package channel)
     cmake_parse_arguments(PARSE_ARGV 0 IAPARG 
         "COMBINED_PACKAGE"
         "PACKAGE_NAME;PACKAGE_VERSION;PACKAGE_BUILDER;"
@@ -172,6 +173,11 @@ function(install_artifactory_package package_name package_version package_builde
 
     message(STATUS "Installing package * ${package_name} * from lkeb-artifactory.lumc.nl")
     get_settings()
+    if(NOT DEFINED channel OR channel STREQUAL "")
+        set(channel "stable")
+    else()
+        set(channel ${channel})
+    endif()
     set(package_name ${package_name})
     if ((compiler_name MATCHES "apple-clang") AND (compiler_version MATCHES "15"))
         set(compiler_version "14")
@@ -190,7 +196,7 @@ function(install_artifactory_package package_name package_version package_builde
 
     get_artifactory_package("${package_name}" "${package_version}" "${package_builder}"
         "${compiler_name}" "${compiler_version}"
-        "${os_name}" "${is_combined_package}" "${package_arch}")
+        "${os_name}" "${is_combined_package}" "${package_arch}" "${channel}")
     # add the HDILib to the module path
     set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/${package_name}" ${CMAKE_MODULE_PATH} PARENT_SCOPE)
     set(${package_name}_ROOT "${LIBRARY_INSTALL_DIR}/${package_name}" PARENT_SCOPE)

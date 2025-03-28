@@ -166,17 +166,18 @@ endmacro()
 # channel: optional - the channel to be used. The default channel is stable, the alternative is python
 
 function(install_artifactory_package package_name package_version package_builder is_combined_package channel)
-    cmake_parse_arguments(PARSE_ARGV 0 IAPARG 
-        "COMBINED_PACKAGE"
-        "PACKAGE_NAME;PACKAGE_VERSION;PACKAGE_BUILDER;"
-        "" ${ARGN})
+    set(options IS_COMBINED_PACKAGE CHANNEL)
+    set(oneValueArgs PACKAGE_NAME PACKAGE_VERSION PACKAGE_BUILDER)
+    cmake_parse_arguments(PARSE_ARGV 0 arg 
+        "${options}" "${oneValueArgs}" "" ${ARGN}
+    )
 
     message(STATUS "Installing package * ${package_name} * from lkeb-artifactory.lumc.nl")
     get_settings()
-    if(NOT DEFINED channel OR channel STREQUAL "")
+    if(NOT DEFINED arg_CHANNEL OR arg_CHANNEL STREQUAL "")
         set(channel "stable")
     else()
-        set(channel ${channel})
+        set(channel ${arg_CHANNEL})
     endif()
     set(package_name ${package_name})
     if ((compiler_name MATCHES "apple-clang") AND (compiler_version MATCHES "15"))
@@ -186,9 +187,9 @@ function(install_artifactory_package package_name package_version package_builde
         set(compiler_version "13")
     endif()
 
-    set(package_version ${package_version})
-    set(package_builder ${package_builder})
-    set(is_combined_package ${is_combined_package})
+    set(package_version ${arg_PACKAGE_VERSION})
+    set(package_builder ${arg_PACKAGE_BUILDER})
+    set(is_combined_package ${arg_IS_COMBINED_PACKAGE})
     set(package_arch "x86_64")
     if(APPLE AND CMAKE_OSX_ARCHITECTURES  MATCHES "arm64")
         set(package_arch "armv8")

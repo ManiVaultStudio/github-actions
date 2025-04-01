@@ -187,9 +187,9 @@ function(install_artifactory_package package_name package_version package_builde
     set(is_combined_package ${is_combined_package})
     set(package_arch "x86_64")
     if(APPLE) 
-        message(STATUS "CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
+        message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR: ${CMAKE_HOST_SYSTEM_PROCESSOR}")
     endif()
-    if(APPLE AND CMAKE_OSX_ARCHITECTURES  MATCHES "arm64")
+    if(APPLE AND CMAKE_HOST_SYSTEM_PROCESSOR  MATCHES "arm64")
         set(package_arch "armv8")
     endif()
 

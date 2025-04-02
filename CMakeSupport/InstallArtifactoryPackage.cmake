@@ -181,9 +181,9 @@ function(install_artifactory_package package_name package_version package_builde
     if ((compiler_name MATCHES "apple-clang") AND (compiler_version MATCHES "16"))
         set(compiler_version "15")
     endif()
-    if((package_name MATCHES "lz4") AND (compiler_name MATCHES "apple-clang") AND (compiler_version MATCHES "14"))
-        set(compiler_version "13")
-    endif()
+    #if((package_name MATCHES "lz4") AND (compiler_name MATCHES "apple-clang") AND (compiler_version MATCHES "14"))
+    #    set(compiler_version "13")
+    #endif()
 
     set(package_version ${package_version})
     set(package_builder ${package_builder})

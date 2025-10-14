@@ -177,9 +177,9 @@ runs:
           # exit 1
         fi
 
-    if (( ${#BINARIES[@]} )); then
-      sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
-    fi
+        if (( ${#BINARIES[@]} )); then
+          sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
+        fi
         
     - name: Upload to artifactory with conan
       run: |

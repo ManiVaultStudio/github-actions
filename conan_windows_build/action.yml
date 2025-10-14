@@ -101,15 +101,12 @@ runs:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 
     - name: Install sentry-cli
-      shell: pwsh
+      shell: bash
       run: |
-        iwr -UseBasicParsing https://sentry.io/get-cli/ | iex
-        $bin = "$HOME\.sentry-cli\bin"
-        if (Test-Path "$bin\sentry-cli.exe") {
-          $bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        }
+        curl -sSfL https://sentry.io/get-cli/ | bash
+        echo "$HOME/.sentry-cli/bin" >> "$GITHUB_PATH"
 
-    - name: Verify sentry-cli
-      shell: pwsh
+    - name: Verify
+      shell: bash
       run: sentry-cli --version
       

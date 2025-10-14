@@ -122,15 +122,20 @@ runs:
         which sentry-cli || true
         sentry-cli --version
 
-    - name: Find Conan build folder (Windows cmd)
-      shell: cmd
+    - name: Find Conan build folder (PowerShell)
+      shell: pwsh
       run: |
-        for /f "delims=" %%A in ('conan inspect . --raw name') do set NAME=%%A
-        for /f "delims=" %%A in ('conan inspect . --raw version') do set VER=%%A
-        set REF=%NAME%/%VER%@lkeb/stable
-        for /f "tokens=2 delims=: " %%A in ('conan info %REF% --paths -s build_type=${{ inputs.conan-build-type }} ^| findstr /c:"build_folder"') do set BUILD_DIR=%%A
-        echo BUILD_DIR=%BUILD_DIR%
-        echo BUILD_DIR=%BUILD_DIR%>> %GITHUB_OUTPUT%
+        $name = conan inspect . --raw name
+        $ver  = conan inspect . --raw version
+        $ref  = "$name/$ver@lkeb/stable"
+    
+        # IMPORTANT: keep the equals sign in -s build_type=<...>
+        $info = conan info $ref --paths -s build_type=${{ inputs.conan-build-type }}
+    
+        $build = ($info | Select-String 'build_folder').Line -replace '^\s*build_folder:\s*',''
+        $build = $build.Trim()
+        "BUILD_DIR=$build" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
     
     
     

@@ -122,14 +122,7 @@ runs:
         which sentry-cli || true
         sentry-cli --version
 
-    - name: Find Conan build folder
-      id: conan_builddir
-      shell: bash
-      run: |
-        # This prints paths including `build_folder: <path>`
-        CONAN_INFO=$(conan info . --paths)
-        BUILD_DIR=$(echo "$CONAN_INFO" | awk -F': ' '/build_folder/ {print $2; exit}')
-        echo "BUILD_DIR=$BUILD_DIR" >> "$GITHUB_OUTPUT"
+    
     
     
           

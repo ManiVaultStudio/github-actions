@@ -104,11 +104,21 @@ runs:
       if: startsWith(github.ref, 'refs/heads/release/')
       shell: bash
       run: |
+        set -euo pipefail
         curl -sSfL https://sentry.io/get-cli/ | bash
-        echo "/usr/local/bin/sentry-cli" >> "$GITHUB_PATH"
-
+    
+        # Add whichever install location exists to PATH for subsequent steps
+        if [ -x "/usr/local/bin/sentry-cli" ]; then
+          echo "/usr/local/bin" >> "$GITHUB_PATH"
+        fi
+        if [ -x "$HOME/.sentry-cli/bin/sentry-cli" ]; then
+          echo "$HOME/.sentry-cli/bin" >> "$GITHUB_PATH"
+        fi
+    
     - name: Verify
       if: startsWith(github.ref, 'refs/heads/release/')
       shell: bash
-      run: sentry-cli --version
-      
+      run: |
+        which sentry-cli || true
+        sentry-cli --version
+          

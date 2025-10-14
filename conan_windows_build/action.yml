@@ -101,12 +101,14 @@ runs:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 
     - name: Install sentry-cli
+      if: startsWith(github.ref, 'refs/heads/release/')
       shell: bash
       run: |
         curl -sSfL https://sentry.io/get-cli/ | bash
         echo "/usr/local/bin/sentry-cli" >> "$GITHUB_PATH"
 
     - name: Verify
+      if: startsWith(github.ref, 'refs/heads/release/')
       shell: bash
       run: sentry-cli --version
       

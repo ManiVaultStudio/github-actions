@@ -99,3 +99,11 @@ runs:
       shell: pwsh
       env:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
+
+    - name: Install sentry-cli
+        shell: bash
+        run: curl -sL https://sentry.io/get-cli/ | bash
+
+    - name: Verify sentry-cli
+      run: sentry-cli --version
+      shell: bash

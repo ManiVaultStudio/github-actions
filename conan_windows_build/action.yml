@@ -123,6 +123,7 @@ runs:
         sentry-cli --version
 
     - name: Find Conan build folder (PowerShell)
+      if: startsWith(github.ref, 'refs/heads/release/')
       shell: pwsh
       run: |
         $name = conan inspect . --raw name
@@ -137,6 +138,7 @@ runs:
         "BUILD_DIR=$build" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
     - name: Find Conan build folder (easy)
+      if: startsWith(github.ref, 'refs/heads/release/')
       shell: pwsh
       run: |
         $cache = Join-Path $env:GITHUB_WORKSPACE '_conan\.conan\data'

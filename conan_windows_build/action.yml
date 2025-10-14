@@ -131,19 +131,5 @@ runs:
         BUILD_DIR=$(echo "$CONAN_INFO" | awk -F': ' '/build_folder/ {print $2; exit}')
         echo "BUILD_DIR=$BUILD_DIR" >> "$GITHUB_OUTPUT"
     
-    - name: Upload PDBs to self-hosted Sentry
-      if: startsWith(github.ref, 'refs/heads/release/')
-      shell: bash
-      env:
-        BUILD_DIR: ${{ steps.conan_builddir.outputs.BUILD_DIR }}
-      run: |
-        if [ -z "$BUILD_DIR" ]; then
-          echo "No Conan build dir found"; exit 1
-        fi
-        sentry-upload \
-          --org "$SENTRY_ORG" \
-          --project "$SENTRY_PROJECT" \
-          --token "$SENTRY_AUTH_TOKEN" \
-          --release "${{ github.ref_name }}" \
-          --paths "$BUILD_DIR/**/*.pdb" "$BUILD_DIR/**/RelWithDebInfo/**/*.pdb"
+    
           

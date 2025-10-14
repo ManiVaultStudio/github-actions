@@ -135,6 +135,20 @@ runs:
         if (-not $buildDir) { throw "No Conan build dir found under $cache" }
         "BUILD_DIR=$($buildDir.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
+    - name: Upload PDBs
+      if: startsWith(github.ref, 'refs/heads/release/')
+      shell: bash
+      env:
+        BUILD_DIR: ${{ steps.conan_builddir.outputs.BUILD_DIR }}
+        SENTRY_URL: ${{ secrets.SENTRY_URL }}
+        SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+        SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      run: |
+        sentry-upload \
+          --org "$SENTRY_ORG" --project "$SENTRY_PROJECT" --token "$SENTRY_AUTH_TOKEN" \
+          --release "${{ github.ref_name }}" \
+          --paths "$BUILD_DIR/**/*.pdb" "$BUILD_DIR/**/Release/**/*.pdb"
     
     
     

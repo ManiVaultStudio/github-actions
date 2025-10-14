@@ -122,6 +122,15 @@ runs:
         which sentry-cli || true
         sentry-cli --version
 
+    - name: Find Conan build folder (Windows cmd)
+      shell: cmd
+      run: |
+        for /f "delims=" %%A in ('conan inspect . --raw name') do set NAME=%%A
+        for /f "delims=" %%A in ('conan inspect . --raw version') do set VER=%%A
+        set REF=%NAME%/%VER%@lkeb/stable
+        for /f "tokens=2 delims=: " %%A in ('conan info %REF% --paths -s build_type=${{ inputs.conan-build-type }} ^| findstr /c:"build_folder"') do set BUILD_DIR=%%A
+        echo BUILD_DIR=%BUILD_DIR%
+        echo BUILD_DIR=%BUILD_DIR%>> %GITHUB_OUTPUT%
     
     
     

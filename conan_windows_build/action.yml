@@ -135,6 +135,7 @@ runs:
         sentry-cli --version
 
     - name: Find Conan build folder (easy)
+      id: conan_builddir
       if: startsWith(github.ref, 'refs/heads/release/')
       shell: pwsh
       run: |
@@ -145,14 +146,17 @@ runs:
           | Sort-Object LastWriteTime -Descending `
           | Select-Object -First 1
         if (-not $buildDir) { throw "No Conan build dir found under $cache" }
-        "BUILD_DIR=$($buildDir.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-
+    
+        # Convert to POSIX-style so bash globbing works reliably
+        $unix = $buildDir.FullName -replace '\\','/'
+        "BUILD_DIR=$unix" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+    
     - name: Upload PDBs (and binaries)
       if: startsWith(github.ref, 'refs/heads/release/')
       shell: bash
       env:
         BUILD_DIR: ${{ steps.conan_builddir.outputs.BUILD_DIR }}
-        RELEASE_NAME: ${{ github.ref_name }}   # e.g. release/1.2.x
+        RELEASE_NAME: ${{ github.ref_name }}
         SENTRY_URL: ${{ inputs.LKEB_SENTRY_URL }}
         SENTRY_ORG: ${{ inputs.LKEB_SENTRY_ORG }}
         SENTRY_PROJECT: ${{ inputs.LKEB_SENTRY_PROJECT }}
@@ -160,21 +164,20 @@ runs:
       run: |
         set -euo pipefail
         shopt -s globstar nullglob
-
+    
+        echo "BUILD_DIR=$BUILD_DIR"
+    
         # Collect files
         PDBS=( "$BUILD_DIR"/**/*.pdb "$BUILD_DIR"/**/RelWithDebInfo/**/*.pdb )
         BINARIES=( "$BUILD_DIR"/**/*.exe "$BUILD_DIR"/**/*.dll )
-
+    
         echo "Uploading to $SENTRY_URL for $SENTRY_ORG/$SENTRY_PROJECT"
         if (( ${#PDBS[@]} )); then
           sentry-cli --url "$SENTRY_URL" debug-files upload --include-sources -t pdb "${PDBS[@]}"
         else
           echo "No PDBs found."
         fi
-
-        # Optional but recommended—upload EXE/DLL so symbolication has images
+    
         if (( ${#BINARIES[@]} )); then
           sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
         fi
-    
-          

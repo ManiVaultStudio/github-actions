@@ -153,22 +153,33 @@ runs:
         set -euo pipefail
         shopt -s globstar nullglob
     
-        echo "BUILD_DIR=$BUILD_DIR"
+        # Convert D:/a/... -> /d/a/... for Git-Bash
+        POSIX_BUILD_DIR="$(echo "$BUILD_DIR" | sed -E 's|^([A-Za-z]):/|/\L\1/|')"
+        echo "BUILD_DIR(raw)=$BUILD_DIR"
+        echo "BUILD_DIR(posix)=$POSIX_BUILD_DIR"
     
-        # Collect files
-        PDBS=( "$BUILD_DIR"/**/*.pdb "$BUILD_DIR"/**/RelWithDebInfo/**/*.pdb )
-        BINARIES=( "$BUILD_DIR"/**/*.exe "$BUILD_DIR"/**/*.dll )
+        echo "Listing a few levels under build dir:"
+        find "$POSIX_BUILD_DIR" -maxdepth 3 -type d -print | head -50
+    
+        # Try both common layouts
+        PDBS=( "$POSIX_BUILD_DIR"/**/*.pdb )
+        BINARIES=( "$POSIX_BUILD_DIR"/**/*.exe "$POSIX_BUILD_DIR"/**/*.dll )
+    
+        echo "Sample PDB matches:"
+        compgen -G "$POSIX_BUILD_DIR/**/*.pdb" | head -20 || true
     
         echo "Uploading to $SENTRY_URL for $SENTRY_ORG/$SENTRY_PROJECT"
         if (( ${#PDBS[@]} )); then
           sentry-cli --url "$SENTRY_URL" debug-files upload --include-sources -t pdb "${PDBS[@]}"
         else
-          echo "No PDBs found."
+          echo "No PDBs found under $POSIX_BUILD_DIR"
+          # Optional: fail hard if this should never happen
+          # exit 1
         fi
-    
-        if (( ${#BINARIES[@]} )); then
-          sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
-        fi
+
+    if (( ${#BINARIES[@]} )); then
+      sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
+    fi
         
     - name: Upload to artifactory with conan
       run: |

@@ -23,6 +23,18 @@ inputs:
   rs_ssh_key:
     description: "pass secrets.RULESSUPPORT_DEPLOY_KEY"
     required: true
+  sentry-url:
+    description: "pass secrets.LKEB_SENTRY_URL"
+    required: true
+  sentry-org:
+    description: "pass secrets.LKEB_SENTRY_ORG"
+    required: true
+  sentry-project:
+    description: "pass secrets.LKEB_SENTRY_PROJECT"
+    required: true
+  sentry-auth-token:
+    description: "pass secrets.LKEB_SENTRY_AUTH_TOKEN"
+    required: true
 
 runs:
   using: "composite"
@@ -140,10 +152,10 @@ runs:
       shell: bash
       env:
         BUILD_DIR: ${{ steps.conan_builddir.outputs.BUILD_DIR }}
-        SENTRY_URL: ${{ secrets.SENTRY_URL }}
-        SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-        SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-        SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        SENTRY_URL: ${{ inputs.LKEB_SENTRY_URL }}
+        SENTRY_ORG: ${{ inputs.LKEB_SENTRY_ORG }}
+        SENTRY_PROJECT: ${{ inputs.LKEB_SENTRY_PROJECT }}
+        SENTRY_AUTH_TOKEN: ${{ inputs.LKEB_SENTRY_AUTH_TOKEN }}
       run: |
         sentry-upload \
           --org "$SENTRY_ORG" --project "$SENTRY_PROJECT" --token "$SENTRY_AUTH_TOKEN" \

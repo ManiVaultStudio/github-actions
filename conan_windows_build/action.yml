@@ -147,21 +147,33 @@ runs:
         if (-not $buildDir) { throw "No Conan build dir found under $cache" }
         "BUILD_DIR=$($buildDir.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-    - name: Upload PDBs
-      if: startsWith(github.ref, 'refs/heads/release/')
-      shell: bash
-      env:
-        BUILD_DIR: ${{ steps.conan_builddir.outputs.BUILD_DIR }}
-        SENTRY_URL: ${{ inputs.LKEB_SENTRY_URL }}
-        SENTRY_ORG: ${{ inputs.LKEB_SENTRY_ORG }}
-        SENTRY_PROJECT: ${{ inputs.LKEB_SENTRY_PROJECT }}
-        SENTRY_AUTH_TOKEN: ${{ inputs.LKEB_SENTRY_AUTH_TOKEN }}
-      run: |
-        sentry-upload \
-          --org "$SENTRY_ORG" --project "$SENTRY_PROJECT" --token "$SENTRY_AUTH_TOKEN" \
-          --release "${{ github.ref_name }}" \
-          --paths "$BUILD_DIR/**/*.pdb" "$BUILD_DIR/**/Release/**/*.pdb"
-    
-    
+    - name: Upload PDBs (and binaries)
+        shell: bash
+        env:
+          BUILD_DIR: ${{ steps.conan_builddir.outputs.BUILD_DIR }}
+          RELEASE_NAME: ${{ github.ref_name }}   # e.g. release/1.2.x
+          SENTRY_URL: ${{ inputs.LKEB_SENTRY_URL }}
+          SENTRY_ORG: ${{ inputs.LKEB_SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ inputs.LKEB_SENTRY_PROJECT }}
+          SENTRY_AUTH_TOKEN: ${{ inputs.LKEB_SENTRY_AUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+
+          # Collect files
+          PDBS=( "$BUILD_DIR"/**/*.pdb "$BUILD_DIR"/**/RelWithDebInfo/**/*.pdb )
+          BINARIES=( "$BUILD_DIR"/**/*.exe "$BUILD_DIR"/**/*.dll )
+
+          echo "Uploading to $SENTRY_URL for $SENTRY_ORG/$SENTRY_PROJECT"
+          if (( ${#PDBS[@]} )); then
+            sentry-cli --url "$SENTRY_URL" debug-files upload --include-sources -t pdb "${PDBS[@]}"
+          else
+            echo "No PDBs found."
+          fi
+
+          # Optional but recommended—upload EXE/DLL so symbolication has images
+          if (( ${#BINARIES[@]} )); then
+            sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
+          fi
     
           

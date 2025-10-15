@@ -122,25 +122,6 @@ runs:
         which sentry-cli || true
         sentry-cli --version
 
-    - name: Probe for any PDBs under Conan cache
-      if: startsWith(github.ref, 'refs/heads/release/')
-      id: pdb_probe
-      shell: pwsh
-      run: |
-        $root = Join-Path $env:GITHUB_WORKSPACE '_conan\.conan\data'
-        "ROOT=$root"
-        $pdbs = Get-ChildItem -Recurse -Filter *.pdb -File $root | Select-Object -First 100
-        if (-not $pdbs) {
-          "NO_PDBS_FOUND" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          Write-Host "No PDBs anywhere under $root"
-          exit 0
-        }
-        $pdbs | ForEach-Object { $_.FullName }
-        # Try to infer a sensible base dir to scan (the directory that contains most PDBs)
-        $base = ($pdbs | Group-Object { $_.Directory.FullName } | Sort-Object Count -Descending | Select-Object -First 1).Group[0].Directory.FullName
-        "BASE_DIR=$($base -replace '\\','/')" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-
-    
     - name: Upload PDBs with sentry-cli
       if: startsWith(github.ref, 'refs/heads/release/') && steps.pdb_probe.outputs.NO_PDBS_FOUND != 'NO_PDBS_FOUND'
       shell: bash
@@ -154,19 +135,9 @@ runs:
       run: |
         set -euo pipefail
         shopt -s globstar nullglob
-    
-        : "${SENTRY_URL:?missing}" : "${SENTRY_ORG:?missing}" : "${SENTRY_PROJECT:?missing}" : "${SENTRY_AUTH_TOKEN:?missing}"
-    
-        # Build a safe release name
-        RELEASE_SAFE="${GITHUB_REF_NAME//\//-}"
-        RELEASE_SAFE="${RELEASE_SAFE//[[:space:]]/-}"
-    
-        # Pick search root
-        DEFAULT_ROOT="$(echo "$GITHUB_WORKSPACE/_conan/.conan/data" | sed -E 's|^([A-Za-z]):/|/\L\1/|')"
-        SEARCH_ROOT="${BASE_DIR:-$DEFAULT_ROOT}"
-        # Normalize Windows drive -> /d/ style
-        SEARCH_ROOT="$(echo "$SEARCH_ROOT" | sed -E 's|^([A-Za-z]):/|/\L\1/|')"
-    
+
+        SEARCH_ROOT="D:/.conan/"
+
         echo "Searching for PDBs under: $SEARCH_ROOT"
     
         PDBS=( "$SEARCH_ROOT"/**/*.pdb )
@@ -179,13 +150,6 @@ runs:
     
         sentry-cli --url "$SENTRY_URL" debug-files upload --include-sources -t pdb "${PDBS[@]}"
         (( ${#BINARIES[@]} )) && sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
-        sentry-cli --url "$SENTRY_URL" releases new "$RELEASE_SAFE"    || true
-        sentry-cli --url "$SENTRY_URL" releases finalize "$RELEASE_SAFE" || true
-
-
-    
-
-
         
     - name: Upload to artifactory with conan
       run: |

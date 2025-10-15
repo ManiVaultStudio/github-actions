@@ -136,43 +136,46 @@ runs:
         $unix = $pkgDir.FullName -replace '\\','/'
         "PKG_DIR=$unix" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
     
-    # Upload with sentry-cli (self-hosted)
     - name: Upload PDBs (and binaries)
       shell: bash
       env:
-        SENTRY_URL:        ${{ inputs.sentry-url }}
-        SENTRY_ORG:        ${{ inputs.sentry-org }}
-        SENTRY_PROJECT:    ${{ inputs.sentry-project }}
-        SENTRY_AUTH_TOKEN: ${{ inputs.sentry-auth-token }}
-        RELEASE_SAFE:      ${{ github.ref_name && replace(github.ref_name, '/', '-') }}
-        PKG_DIR:           ${{ steps.conan_pkgdir.outputs.PKG_DIR }}
+        RELEASE_NAME: ${{ github.ref_name }}     # raw branch/tag, may contain slashes
+        SENTRY_URL: ${{ inputs.LKEB_SENTRY_URL }}
+        SENTRY_ORG: ${{ inputs.LKEB_SENTRY_ORG }}
+        SENTRY_PROJECT: ${{ inputs.LKEB_SENTRY_PROJECT }}
+        SENTRY_AUTH_TOKEN: ${{ inputs.LKEB_SENTRY_AUTH_TOKEN }}
+        PKG_DIR: ${{ steps.conan_pkgdir.outputs.PKG_DIR }}
       run: |
         set -euo pipefail
         shopt -s globstar nullglob
+    
+        # sanitize release: replace slashes/whitespace with dashes
+        RELEASE_SAFE="${RELEASE_NAME//\//-}"
+        RELEASE_SAFE="${RELEASE_SAFE//[[:space:]]/-}"
+        echo "Release (sanitized): $RELEASE_SAFE"
+    
+        # Convert Windows drive path if needed
         posix() { sed -E 's|^([A-Za-z]):/|/\L\1/|' <<<"$1"; }
         POSIX_PKG_DIR="$(posix "$PKG_DIR")"
     
-        echo "Scanning $POSIX_PKG_DIR"
         PDBS=( "$POSIX_PKG_DIR"/**/*.pdb )
         BINARIES=( "$POSIX_PKG_DIR"/**/*.exe "$POSIX_PKG_DIR"/**/*.dll )
-    
-        # quick visibility
-        compgen -G "$POSIX_PKG_DIR/**/*.pdb" | head -20 || true
     
         : "${SENTRY_URL:?missing}"; : "${SENTRY_ORG:?missing}"; : "${SENTRY_PROJECT:?missing}"; : "${SENTRY_AUTH_TOKEN:?missing}"
     
         if (( ${#PDBS[@]} )); then
           sentry-cli --url "$SENTRY_URL" debug-files upload --include-sources -t pdb "${PDBS[@]}"
         else
-          echo "No PDBs found in package dir"; exit 1
+          echo "No PDBs found in $POSIX_PKG_DIR"; exit 1
         fi
     
         if (( ${#BINARIES[@]} )); then
           sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
         fi
     
-        sentry-cli --url "$SENTRY_URL" releases new "${RELEASE_SAFE:-release}" || true
-        sentry-cli --url "$SENTRY_URL" releases finalize "${RELEASE_SAFE:-release}" || true
+        # Optional release association
+        sentry-cli --url "$SENTRY_URL" releases new "$RELEASE_SAFE" || true
+        sentry-cli --url "$SENTRY_URL" releases finalize "$RELEASE_SAFE" || true
 
 
         

@@ -138,30 +138,52 @@ runs:
     - name: Upload PDBs with sentry-cli
       shell: bash
       env:
+        # pass-through from composite inputs (caller must provide these)
         SENTRY_URL:        ${{ inputs.sentry-url }}
         SENTRY_ORG:        ${{ inputs.sentry-org }}
         SENTRY_PROJECT:    ${{ inputs.sentry-project }}
         SENTRY_AUTH_TOKEN: ${{ inputs.sentry-auth-token }}
-        RELEASE_SAFE:      "${GITHUB_REF_NAME//\//-}"
         PKG_DIR:           ${{ steps.conan_pkgdir.outputs.PKG_DIR }}
       run: |
         set -euo pipefail
         shopt -s globstar nullglob
+    
+        # ----- guards (secrets are masked automatically) -----
+        : "${SENTRY_URL:?SENTRY_URL missing}"
+        : "${SENTRY_ORG:?SENTRY_ORG missing}"
+        : "${SENTRY_PROJECT:?SENTRY_PROJECT missing}"
+        : "${SENTRY_AUTH_TOKEN:?SENTRY_AUTH_TOKEN missing}"
+        : "${PKG_DIR:?PKG_DIR missing}"
+    
+        # Sanitize release (slashes/whitespace not allowed by Sentry)
+        RELEASE_SAFE="${GITHUB_REF_NAME//\//-}"
+        RELEASE_SAFE="${RELEASE_SAFE//[[:space:]]/-}"
+        echo "Using release: $RELEASE_SAFE"
+    
+        # Convert Windows drive path (D:/...) to Git-Bash (/d/...)
         POSIX_PKG_DIR="$(echo "$PKG_DIR" | sed -E 's|^([A-Za-z]):/|/\L\1/|')"
         echo "Scanning $POSIX_PKG_DIR"
+    
+        # Collect artifacts
         PDBS=( "$POSIX_PKG_DIR"/**/*.pdb )
         BINARIES=( "$POSIX_PKG_DIR"/**/*.dll "$POSIX_PKG_DIR"/**/*.exe )
     
+        # Quick visibility (paths are non-secret)
         compgen -G "$POSIX_PKG_DIR/**/*.pdb" | head -20 || true
     
-        : "${SENTRY_URL:?missing}" : "${SENTRY_ORG:?missing}" : "${SENTRY_PROJECT:?missing}" : "${SENTRY_AUTH_TOKEN:?missing}"
-    
+        # Require at least one PDB
         (( ${#PDBS[@]} )) || { echo "No PDBs found in package dir"; exit 1; }
     
+        # Upload to self-hosted Sentry
         sentry-cli --url "$SENTRY_URL" debug-files upload --include-sources -t pdb "${PDBS[@]}"
+    
+        # Optional: upload images too
         (( ${#BINARIES[@]} )) && sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
-        sentry-cli --url "$SENTRY_URL" releases new "$RELEASE_SAFE" || true
+    
+        # Optional: create/finalize release
+        sentry-cli --url "$SENTRY_URL" releases new "$RELEASE_SAFE"    || true
         sentry-cli --url "$SENTRY_URL" releases finalize "$RELEASE_SAFE" || true
+
 
     
 

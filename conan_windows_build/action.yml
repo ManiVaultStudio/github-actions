@@ -92,7 +92,7 @@ runs:
 
         mkdir _build
         if exist .\external\conan-recipes conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable
-        conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build
+        conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build -kb
 
       shell: cmd
       env:
@@ -171,9 +171,6 @@ runs:
           sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
         fi
     
-        # Optional release association
-        sentry-cli --url "$SENTRY_URL" releases new "$RELEASE_SAFE" || true
-        sentry-cli --url "$SENTRY_URL" releases finalize "$RELEASE_SAFE" || true
 
 
         

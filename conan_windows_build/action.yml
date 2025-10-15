@@ -128,55 +128,52 @@ runs:
       shell: pwsh
       run: |
         $cache = Join-Path $env:GITHUB_WORKSPACE '_conan\.conan\data'
-        # Find all build/<pkg_id> dirs and pick the most recently modified
         $buildDir = Get-ChildItem $cache -Recurse -Directory -Filter build `
           | ForEach-Object { Get-ChildItem $_.FullName -Directory } `
           | Sort-Object LastWriteTime -Descending `
           | Select-Object -First 1
         if (-not $buildDir) { throw "No Conan build dir found under $cache" }
-    
-        # Convert to POSIX-style so bash globbing works reliably
         $unix = $buildDir.FullName -replace '\\','/'
         "BUILD_DIR=$unix" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
     
-    - name: Upload PDBs (and binaries)
+    - name: Upload PDBs (and binaries) from package staging
       if: startsWith(github.ref, 'refs/heads/release/')
       shell: bash
       env:
-        BUILD_DIR: ${{ steps.conan_builddir.outputs.BUILD_DIR }}
-        RELEASE_NAME: ${{ github.ref_name }}
-        SENTRY_URL: ${{ inputs.LKEB_SENTRY_URL }}
-        SENTRY_ORG: ${{ inputs.LKEB_SENTRY_ORG }}
-        SENTRY_PROJECT: ${{ inputs.LKEB_SENTRY_PROJECT }}
-        SENTRY_AUTH_TOKEN: ${{ inputs.LKEB_SENTRY_AUTH_TOKEN }}
+        SENTRY_URL:        ${{ secrets.SENTRY_URL }}
+        SENTRY_ORG:        ${{ secrets.SENTRY_ORG }}
+        SENTRY_PROJECT:    ${{ secrets.SENTRY_PROJECT }}
+        SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        RELEASE_NAME:      ${{ github.ref_name }}
+        BUILD_DIR:         ${{ steps.conan_builddir.outputs.BUILD_DIR }}
       run: |
         set -euo pipefail
         shopt -s globstar nullglob
     
-        # Convert D:/a/... -> /d/a/... for Git-Bash
+        # Convert D:/... -> /d/... for Git-Bash
         POSIX_BUILD_DIR="$(echo "$BUILD_DIR" | sed -E 's|^([A-Za-z]):/|/\L\1/|')"
+        PKG_DIR="$POSIX_BUILD_DIR/package"
+    
         echo "BUILD_DIR(raw)=$BUILD_DIR"
-        echo "BUILD_DIR(posix)=$POSIX_BUILD_DIR"
+        echo "PKG_DIR=$PKG_DIR"
     
-        echo "Listing a few levels under build dir:"
-        find "$POSIX_BUILD_DIR" -maxdepth 3 -type d -print | head -50
-    
-        # Try both common layouts
-        PDBS=( "$POSIX_BUILD_DIR"/**/*.pdb )
-        BINARIES=( "$POSIX_BUILD_DIR"/**/*.exe "$POSIX_BUILD_DIR"/**/*.dll )
+        # PDBs staged by your recipe:
+        #   <build>/package/RelWithDebInfo/pdb/*.pdb
+        # plus anything installed under Release/RelWithDebInfo
+        PDBS=( "$PKG_DIR"/**/*.pdb )
+        BINARIES=( "$PKG_DIR"/**/*.exe "$PKG_DIR"/**/*.dll )
     
         echo "Sample PDB matches:"
-        compgen -G "$POSIX_BUILD_DIR/**/*.pdb" | head -20 || true
+        compgen -G "$PKG_DIR/**/*.pdb" | head -20 || true
     
         echo "Uploading to $SENTRY_URL for $SENTRY_ORG/$SENTRY_PROJECT"
         if (( ${#PDBS[@]} )); then
           sentry-cli --url "$SENTRY_URL" debug-files upload --include-sources -t pdb "${PDBS[@]}"
         else
-          echo "No PDBs found under $POSIX_BUILD_DIR"
-          # Optional: fail hard if this should never happen
-          # exit 1
+          echo "No PDBs found under $PKG_DIR"
+          # exit 1   # uncomment to fail hard
         fi
-
+    
         if (( ${#BINARIES[@]} )); then
           sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
         fi

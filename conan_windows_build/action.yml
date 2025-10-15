@@ -122,61 +122,64 @@ runs:
         which sentry-cli || true
         sentry-cli --version
 
-    - name: Find Conan build folder (easy)
-      id: conan_builddir
+    - name: Find Conan package folder (latest)
+      id: conan_pkgdir
       if: startsWith(github.ref, 'refs/heads/release/')
       shell: pwsh
       run: |
         $cache = Join-Path $env:GITHUB_WORKSPACE '_conan\.conan\data'
-        $buildDir = Get-ChildItem $cache -Recurse -Directory -Filter build `
+        # find ...\package\<pkg_id>\ (most recently modified)
+        $pkgDir = Get-ChildItem $cache -Recurse -Directory -Filter package `
           | ForEach-Object { Get-ChildItem $_.FullName -Directory } `
           | Sort-Object LastWriteTime -Descending `
           | Select-Object -First 1
-        if (-not $buildDir) { throw "No Conan build dir found under $cache" }
-        $unix = $buildDir.FullName -replace '\\','/'
-        "BUILD_DIR=$unix" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+        if (-not $pkgDir) { throw "No Conan package dir found under $cache" }
+        # PowerShell → POSIX for Git-Bash globs
+        $unix = $pkgDir.FullName -replace '\\','/'
+        "PKG_DIR=$unix" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
     
-    - name: Upload PDBs (and binaries) from package staging
+    - name: Upload PDBs (and binaries) from package
       if: startsWith(github.ref, 'refs/heads/release/')
       shell: bash
       env:
-        SENTRY_URL:        ${{ inputs.sentry-url }}
-        SENTRY_ORG:        ${{ inputs.sentry-org }}
-        SENTRY_PROJECT:    ${{ inputs.sentry-project }}
-        SENTRY_AUTH_TOKEN: ${{ inputs.sentry-auth-token }}
+        SENTRY_URL:        ${{ secrets.SENTRY_URL }}
+        SENTRY_ORG:        ${{ secrets.SENTRY_ORG }}
+        SENTRY_PROJECT:    ${{ secrets.SENTRY_PROJECT }}
+        SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         RELEASE_NAME:      ${{ github.ref_name }}
-        BUILD_DIR:         ${{ steps.conan_builddir.outputs.BUILD_DIR }}
+        PKG_DIR:           ${{ steps.conan_pkgdir.outputs.PKG_DIR }}
       run: |
         set -euo pipefail
         shopt -s globstar nullglob
     
-        # Convert D:/... -> /d/... for Git-Bash
-        POSIX_BUILD_DIR="$(echo "$BUILD_DIR" | sed -E 's|^([A-Za-z]):/|/\L\1/|')"
-        PKG_DIR="$POSIX_BUILD_DIR/package"
+        # D:/... -> /d/... for Git-Bash
+        POSIX_PKG_DIR="$(echo "$PKG_DIR" | sed -E 's|^([A-Za-z]):/|/\L\1/|')"
+        echo "PKG_DIR=$POSIX_PKG_DIR"
     
-        echo "BUILD_DIR(raw)=$BUILD_DIR"
-        echo "PKG_DIR=$PKG_DIR"
+        echo "Tree preview:"
+        find "$POSIX_PKG_DIR" -maxdepth 3 -type d -print | head -50
     
-        # PDBs staged by your recipe:
-        #   <build>/package/RelWithDebInfo/pdb/*.pdb
-        # plus anything installed under Release/RelWithDebInfo
-        PDBS=( "$PKG_DIR"/**/*.pdb )
-        BINARIES=( "$PKG_DIR"/**/*.exe "$PKG_DIR"/**/*.dll )
+        PDBS=( "$POSIX_PKG_DIR"/**/*.pdb )
+        BINARIES=( "$POSIX_PKG_DIR"/**/*.exe "$POSIX_PKG_DIR"/**/*.dll )
     
-        echo "Sample PDB matches:"
-        compgen -G "$PKG_DIR/**/*.pdb" | head -20 || true
+        echo "Sample PDBs:"
+        compgen -G "$POSIX_PKG_DIR/**/*.pdb" | head -20 || true
     
         echo "Uploading to $SENTRY_URL for $SENTRY_ORG/$SENTRY_PROJECT"
         if (( ${#PDBS[@]} )); then
           sentry-cli --url "$SENTRY_URL" debug-files upload --include-sources -t pdb "${PDBS[@]}"
         else
-          echo "No PDBs found under $PKG_DIR"
-          # exit 1   # uncomment to fail hard
+          echo "No PDBs found under $POSIX_PKG_DIR"
+          # exit 1
         fi
     
         if (( ${#BINARIES[@]} )); then
           sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
         fi
+    
+        sentry-cli --url "$SENTRY_URL" releases new "$RELEASE_NAME" || true
+        sentry-cli --url "$SENTRY_URL" releases finalize "$RELEASE_NAME" || true
+
         
     - name: Upload to artifactory with conan
       run: |

@@ -148,13 +148,7 @@ runs:
         set -euo pipefail
         shopt -s globstar nullglob
     
-        # ----- guards (secrets are masked automatically) -----
-        : "${SENTRY_URL:?SENTRY_URL missing}"
-        : "${SENTRY_ORG:?SENTRY_ORG missing}"
-        : "${SENTRY_PROJECT:?SENTRY_PROJECT missing}"
-        : "${SENTRY_AUTH_TOKEN:?SENTRY_AUTH_TOKEN missing}"
-        : "${PKG_DIR:?PKG_DIR missing}"
-    
+   
         # Sanitize release (slashes/whitespace not allowed by Sentry)
         RELEASE_SAFE="${GITHUB_REF_NAME//\//-}"
         RELEASE_SAFE="${RELEASE_SAFE//[[:space:]]/-}"

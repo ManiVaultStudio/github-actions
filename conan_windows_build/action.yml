@@ -161,8 +161,6 @@ runs:
         PDBS=( "$POSIX_PKG_DIR"/**/*.pdb )
         BINARIES=( "$POSIX_PKG_DIR"/**/*.exe "$POSIX_PKG_DIR"/**/*.dll )
     
-        : "${SENTRY_URL:?missing}"; : "${SENTRY_ORG:?missing}"; : "${SENTRY_PROJECT:?missing}"; : "${SENTRY_AUTH_TOKEN:?missing}"
-    
         if (( ${#PDBS[@]} )); then
           sentry-cli --url "$SENTRY_URL" debug-files upload --include-sources -t pdb "${PDBS[@]}"
         else

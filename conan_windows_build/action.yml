@@ -126,7 +126,7 @@ runs:
       if: startsWith(github.ref, 'refs/heads/release/')
       uses: actions/checkout@v4
       with:
-        ref: upload_pdbs
+        ref: refs/heads/upload_pdbs
           
     - name: Upload matching PDBs
       if: startsWith(github.ref, 'refs/heads/release/')

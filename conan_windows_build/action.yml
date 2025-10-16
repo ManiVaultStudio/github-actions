@@ -114,31 +114,6 @@ runs:
         if [ -x "$HOME/.sentry-cli/bin/sentry-cli" ]; then
           echo "$HOME/.sentry-cli/bin" >> "$GITHUB_PATH"
         fi
-    
-    - name: Verify
-      if: startsWith(github.ref, 'refs/heads/release/')
-      shell: bash
-      run: |
-        which sentry-cli || true
-        sentry-cli --version
-
-    - name: Checkout the source
-      if: startsWith(github.ref, 'refs/heads/release/')
-      uses: actions/checkout@v4
-      with:
-        repository: ManiVaultStudio/github-actions
-        ref: refs/heads/upload_pdbs
-          
-    - name: Upload matching PDBs
-      if: startsWith(github.ref, 'refs/heads/release/')
-      shell: bash
-      env:
-        SENTRY_URL:        ${{ inputs['sentry-url'] }}
-        SENTRY_ORG:        ${{ inputs['sentry-org'] }}
-        SENTRY_PROJECT:    ${{ inputs['sentry-project'] }}
-        SENTRY_AUTH_TOKEN: ${{ inputs['sentry-auth-token'] }}
-      run: |
-        ./conan_windows_build/upload-matching-pdbs.sh "D:/.conan/"
           
     - name: Upload to artifactory with conan
       run: |

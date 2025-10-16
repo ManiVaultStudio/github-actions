@@ -123,14 +123,15 @@ runs:
         sentry-cli --version
 
     - name: Upload matching PDBs
-        shell: bash
-        env:
-          SENTRY_URL:        ${{ inputs.sentry-url }}
-          SENTRY_ORG:        ${{ inputs.sentry-org }}
-          SENTRY_PROJECT:    ${{ inputs.sentry-project }}
-          SENTRY_AUTH_TOKEN: ${{ inputs.sentry-auth-token }}
-        run: |
-          ./conan_windows_build/upload-matching-pdbs.sh "D:/.conan/"
+      if: startsWith(github.ref, 'refs/heads/release/')
+      shell: bash
+      env:
+        SENTRY_URL:        ${{ inputs.sentry-url }}
+        SENTRY_ORG:        ${{ inputs.sentry-org }}
+        SENTRY_PROJECT:    ${{ inputs.sentry-project }}
+        SENTRY_AUTH_TOKEN: ${{ inputs.sentry-auth-token }}
+      run: |
+        ./conan_windows_build/upload-matching-pdbs.sh "D:/.conan/"
           
     - name: Upload to artifactory with conan
       run: |

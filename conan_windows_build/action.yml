@@ -141,10 +141,10 @@ runs:
       shell: bash
       env:
         # Pull from repo/org variables or override via environment protection rules
-        SENTRY_URL:     ${{ inputs.SENTRY_URL }}
-        SENTRY_ORG:     ${{ inputs.SENTRY_ORG }}
-        SENTRY_PROJECT: ${{ inputs.SENTRY_PROJECT }}
-        SENTRY_AUTH_TOKEN: ${{ inputs.SENTRY_AUTH_TOKEN }}
+        SENTRY_URL:         ${{ inputs['sentry-url'] }}
+        SENTRY_ORG:         ${{ inputs['sentry-org'] }}
+        SENTRY_PROJECT:     ${{ inputs['sentry-project'] }}
+        SENTRY_AUTH_TOKEN:   ${{ inputs['sentry-auth-token'] }}
       run: |
         bash "$GITHUB_WORKSPACE/sentry/upload_pdbs.sh" "${{ inputs.search-root }}"
         

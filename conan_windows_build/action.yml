@@ -133,10 +133,10 @@ runs:
       if: startsWith(github.ref, 'refs/heads/release/')
       shell: bash
       env:
-        SENTRY_URL:        ${{ inputs['sentry-url'] }}
-        SENTRY_ORG:        ${{ inputs['sentry-org'] }}
-        SENTRY_PROJECT:    ${{ inputs['sentry-project'] }}
-        SENTRY_AUTH_TOKEN: ${{ inputs['sentry-auth-token'] }}
+        SENTRY_URL:        ${{ inputs['sentry-url'] || github.event.inputs['sentry-url'] || secrets.SENTRY_URL }}
+        SENTRY_ORG:        ${{ inputs['sentry-org'] || github.event.inputs['sentry-org'] || secrets.SENTRY_ORG }}
+        SENTRY_PROJECT:    ${{ inputs['sentry-project'] || github.event.inputs['sentry-project'] || secrets.SENTRY_PROJECT }}
+        SENTRY_AUTH_TOKEN: ${{ inputs['sentry-auth-token'] || github.event.inputs['sentry-auth-token'] || secrets.SENTRY_AUTH_TOKEN }}
       run: |
         ./conan_windows_build/upload-matching-pdbs.sh "D:/.conan/"
           

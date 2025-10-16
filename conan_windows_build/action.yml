@@ -99,7 +99,11 @@ runs:
         BUILD_SHARED: True
         CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
-          
+
+    - name: Upload PDBs via reusable workflow
+      uses: ManiVaultStudio/github-actions/sentry/upload_pdbs.yml@upload_pdbs
+      secrets: inherit
+        
     - name: Upload to artifactory with conan
       run: |
         $env:CONAN_USER_HOME = (Get-Location).tostring() + '\_conan'

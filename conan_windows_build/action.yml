@@ -122,35 +122,16 @@ runs:
         which sentry-cli || true
         sentry-cli --version
 
-    - name: Upload PDBs with sentry-cli
-      if: startsWith(github.ref, 'refs/heads/release/') && steps.pdb_probe.outputs.NO_PDBS_FOUND != 'NO_PDBS_FOUND'
-      shell: bash
-      env:
-        SENTRY_URL:        ${{ inputs.sentry-url }}
-        SENTRY_ORG:        ${{ inputs.sentry-org }}
-        SENTRY_PROJECT:    ${{ inputs.sentry-project }}
-        SENTRY_AUTH_TOKEN: ${{ inputs.sentry-auth-token }}
-        # Prefer the inferred BASE_DIR; if unset, scan entire Conan cache
-        BASE_DIR:          ${{ steps.pdb_probe.outputs.BASE_DIR }}
-      run: |
-        set -euo pipefail
-        shopt -s globstar nullglob
-
-        SEARCH_ROOT="D:/.conan/"
-
-        echo "Searching for PDBs under: $SEARCH_ROOT"
-    
-        PDBS=( "$SEARCH_ROOT"/**/*.pdb )
-        BINARIES=( "$SEARCH_ROOT"/**/*.dll "$SEARCH_ROOT"/**/*.exe )
-    
-        echo "Sample matches:"
-        compgen -G "$SEARCH_ROOT/**/*.pdb" | head -20 || true
-    
-        (( ${#PDBS[@]} )) || { echo "No PDBs found under $SEARCH_ROOT"; exit 1; }
-    
-        sentry-cli --url "$SENTRY_URL" debug-files upload --include-sources -t pdb "${PDBS[@]}"
-        (( ${#BINARIES[@]} )) && sentry-cli --url "$SENTRY_URL" debug-files upload "${BINARIES[@]}"
-        
+    - name: Upload matching PDBs
+        shell: bash
+        env:
+          SENTRY_URL:        ${{ inputs.sentry-url }}
+          SENTRY_ORG:        ${{ inputs.sentry-org }}
+          SENTRY_PROJECT:    ${{ inputs.sentry-project }}
+          SENTRY_AUTH_TOKEN: ${{ inputs.sentry-auth-token }}
+        run: |
+          ./conan_windows_build/upload-matching-pdbs.sh "D:/.conan/"
+          
     - name: Upload to artifactory with conan
       run: |
         $env:CONAN_USER_HOME = (Get-Location).tostring() + '\_conan'

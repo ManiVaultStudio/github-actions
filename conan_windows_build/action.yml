@@ -123,8 +123,8 @@ runs:
         sentry-cli --version
 
     - name: Checkout the source
-        if: ${{ github.event_name != 'pull_request'}}
-        uses: actions/checkout@v4
+      if: ${{ github.event_name != 'pull_request'}}
+      uses: actions/checkout@v4
         
     - name: Upload matching PDBs
       if: startsWith(github.ref, 'refs/heads/release/')

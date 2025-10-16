@@ -99,21 +99,6 @@ runs:
         BUILD_SHARED: True
         CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
-
-    - name: Install sentry-cli
-      if: startsWith(github.ref, 'refs/heads/release/')
-      shell: bash
-      run: |
-        set -euo pipefail
-        curl -sSfL https://sentry.io/get-cli/ | bash
-    
-        # Add whichever install location exists to PATH for subsequent steps
-        if [ -x "/usr/local/bin/sentry-cli" ]; then
-          echo "/usr/local/bin" >> "$GITHUB_PATH"
-        fi
-        if [ -x "$HOME/.sentry-cli/bin/sentry-cli" ]; then
-          echo "$HOME/.sentry-cli/bin" >> "$GITHUB_PATH"
-        fi
           
     - name: Upload to artifactory with conan
       run: |

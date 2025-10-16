@@ -102,7 +102,7 @@ runs:
 
     - name: Upload PDBs via reusable workflow
       uses: ManiVaultStudio/github-actions/sentry/upload_pdbs.yml@upload_pdbs
-      secrets: inherit
+        secrets: inherit
         
     - name: Upload to artifactory with conan
       run: |

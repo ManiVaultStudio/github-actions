@@ -3,7 +3,7 @@ set -euo pipefail
 shopt -s globstar nullglob
 
 # --- Config ---
-SEARCH_ROOT="${1:-D:/.conan/}"      # override with first arg
+SEARCH_ROOT="${1:-D:/.conan}"      # override with first arg
 : "${SENTRY_URL:?need SENTRY_URL env var (e.g. https://sentry.io/)}"
 # Optionally rely on sentry-cli's default org/project config via auth
 

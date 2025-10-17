@@ -1,4 +1,4 @@
-yname: "Common cmake steps"
+name: "Common cmake steps"
 description: "Encapsulate cmake composite run steps that are common for Windows, Linux and Mac"
 # reference https://docs.github.com/en/free-pro-team@latest/actions/creating-actions/creating-a-composite-run-steps-action
 inputs:

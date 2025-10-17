@@ -35,7 +35,10 @@ inputs:
   sentry-auth-token:
     description: "pass secrets.LKEB_SENTRY_AUTH_TOKEN"
     required: true
-
+  sentry-root:
+    description: "Sentry search root"
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -99,7 +102,7 @@ runs:
         BUILD_SHARED: True
         CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
-        
+
     - name: Upload to artifactory with conan
       run: |
         $env:CONAN_USER_HOME = (Get-Location).tostring() + '\_conan'
@@ -111,3 +114,44 @@ runs:
       shell: pwsh
       env:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
+
+    - name: Install Sentry CLI
+      if: startsWith(github.ref, 'refs/heads/release/')
+      shell: bash
+      run: |
+        set -euo pipefail
+        curl -sSfL https://sentry.io/get-cli/ | bash
+    
+        if [ -x "/usr/local/bin/sentry-cli" ]; then
+          echo "/usr/local/bin" >> "$GITHUB_PATH"
+        fi
+        if [ -x "$HOME/.sentry-cli/bin/sentry-cli" ]; then
+          echo "$HOME/.sentry-cli/bin" >> "$GITHUB_PATH"
+        fi
+        
+    - name: Verify Sentry CLI installation
+      if: startsWith(github.ref, 'refs/heads/release/')
+      shell: bash
+      run: |
+        which sentry-cli || true
+        sentry-cli --version
+
+    - name: Checkout the source
+      if: startsWith(github.ref, 'refs/heads/release/')
+      uses: actions/checkout@v4
+      with:
+        repository: ManiVaultStudio/github-actions
+        ref: refs/heads/upload_pdbs
+        
+    - name: Upload matching PDBs to Sentry
+      if: startsWith(github.ref, 'refs/heads/release/')
+      shell: bash
+      env:
+        SENTRY_URL:         ${{ inputs['sentry-url'] }}
+        SENTRY_ORG:         ${{ inputs['sentry-org'] }}
+        SENTRY_PROJECT:     ${{ inputs['sentry-project'] }}
+        SENTRY_AUTH_TOKEN:   ${{ inputs['sentry-auth-token'] }}
+      run: |
+        bash "$GITHUB_WORKSPACE/sentry/upload_pdbs.sh" "${{ inputs.sentry-root }}"
+        
+    

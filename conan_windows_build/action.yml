@@ -23,6 +23,9 @@ inputs:
   rs_ssh_key:
     description: "pass secrets.RULESSUPPORT_DEPLOY_KEY"
     required: true
+  sentry-upload:
+    description: "Whether to upload program database (and associated) files to Sentry"
+    required: true
   sentry-url:
     description: "pass secrets.LKEB_SENTRY_URL"
     required: true
@@ -116,7 +119,7 @@ runs:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 
     - name: Install Sentry CLI
-      if: startsWith(github.ref, 'refs/heads/release/')
+      if: ${{ inputs.sentry-upload }}
       shell: bash
       run: |
         set -euo pipefail
@@ -130,21 +133,21 @@ runs:
         fi
         
     - name: Verify Sentry CLI installation
-      if: startsWith(github.ref, 'refs/heads/release/')
+      if: ${{ inputs.sentry-upload }}
       shell: bash
       run: |
         which sentry-cli || true
         sentry-cli --version
 
     - name: Checkout the source
-      if: startsWith(github.ref, 'refs/heads/release/')
+      if: ${{ inputs.sentry-upload }}
       uses: actions/checkout@v4
       with:
         repository: ManiVaultStudio/github-actions
         ref: refs/heads/upload_pdbs
         
     - name: Upload matching PDBs to Sentry
-      if: startsWith(github.ref, 'refs/heads/release/')
+      if: ${{ inputs.sentry-upload }}
       shell: bash
       env:
         SENTRY_URL:         ${{ inputs['sentry-url'] }}

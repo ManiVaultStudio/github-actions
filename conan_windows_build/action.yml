@@ -1,4 +1,4 @@
-name: "Common cmake steps"
+yname: "Common cmake steps"
 description: "Encapsulate cmake composite run steps that are common for Windows, Linux and Mac"
 # reference https://docs.github.com/en/free-pro-team@latest/actions/creating-actions/creating-a-composite-run-steps-action
 inputs:
@@ -35,7 +35,10 @@ inputs:
   sentry-auth-token:
     description: "pass secrets.LKEB_SENTRY_AUTH_TOKEN"
     required: true
-
+  sentry-root:
+    description: "Sentry search root"
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -112,14 +115,13 @@ runs:
       env:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 
-    - name: Install sentry-cli
+    - name: Install Sentry CLI
       if: startsWith(github.ref, 'refs/heads/release/')
       shell: bash
       run: |
         set -euo pipefail
         curl -sSfL https://sentry.io/get-cli/ | bash
     
-        # Add whichever install location exists to PATH for subsequent steps
         if [ -x "/usr/local/bin/sentry-cli" ]; then
           echo "/usr/local/bin" >> "$GITHUB_PATH"
         fi
@@ -127,7 +129,7 @@ runs:
           echo "$HOME/.sentry-cli/bin" >> "$GITHUB_PATH"
         fi
         
-    - name: Verify
+    - name: Verify Sentry CLI installation
       if: startsWith(github.ref, 'refs/heads/release/')
       shell: bash
       run: |
@@ -141,23 +143,15 @@ runs:
         repository: ManiVaultStudio/github-actions
         ref: refs/heads/upload_pdbs
         
-    - name: Show config (no secrets)
-      if: startsWith(github.ref, 'refs/heads/release/')
-      shell: bash
-      run: |
-        echo "Using URL=${SENTRY_URL:-<empty>}, ORG=${SENTRY_ORG:-<empty>}, PROJECT=${SENTRY_PROJECT:-<empty>}"
-        echo "SEARCH_ROOT=${{ inputs.search-root }}"
-
-    - name: Upload matching PDBs
+    - name: Upload matching PDBs to Sentry
       if: startsWith(github.ref, 'refs/heads/release/')
       shell: bash
       env:
-        # Pull from repo/org variables or override via environment protection rules
         SENTRY_URL:         ${{ inputs['sentry-url'] }}
         SENTRY_ORG:         ${{ inputs['sentry-org'] }}
         SENTRY_PROJECT:     ${{ inputs['sentry-project'] }}
         SENTRY_AUTH_TOKEN:   ${{ inputs['sentry-auth-token'] }}
       run: |
-        bash "$GITHUB_WORKSPACE/sentry/upload_pdbs.sh" "${{ inputs.search-root }}"
+        bash "$GITHUB_WORKSPACE/sentry/upload_pdbs.sh" "${{ inputs.sentry-root }}"
         
     

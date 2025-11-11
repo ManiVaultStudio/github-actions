@@ -144,11 +144,10 @@ runs:
         sentry-cli --version
 
     - name: Checkout the source
-      if: ${{ inputs.sentry-upload }}
       uses: actions/checkout@v4
       with:
         repository: ManiVaultStudio/github-actions
-        ref: refs/heads/upload_pdbs
+        ref: refs/heads/feature/add_centralized_packaging
         
     - name: Upload matching PDBs to Sentry
       if: ${{ inputs.sentry-upload }}

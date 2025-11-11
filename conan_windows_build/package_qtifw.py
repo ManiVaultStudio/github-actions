@@ -60,19 +60,19 @@ def art_upload_tree(session: requests.Session, base_url: str, repo: str, base_re
 
 def main():
     ap = argparse.ArgumentParser(description="Build & upload a Qt IFW component to Artifactory")
-    ap.add_argument("--plugin-json", required=True, help="Path to plugin.json")
-    ap.add_argument("--payload", required=True, help="Directory with built files to put into data/")
+    
+    ap.add_argument("--packaging-payload-dirs", required=True, help="Path(s) with packaging payload and additional plugin_info.json")
     ap.add_argument("--os-short", required=True, choices=["win","macos","linux"], help="Target OS key used in pathing")
     ap.add_argument("--workdir", default=None, help="Working dir (default: temp)")
-    ap.add_argument("--art-url", required=True, help="Base Artifactory URL, e.g. https://artifactory.example.com")
-    ap.add_argument("--art-repo", required=True, help="Artifactory repository name, e.g. generic-repo")
-    ap.add_argument("--art-base-path", required=True, help="Base path inside repo, e.g. ifw/win")
-    # Auth: prefer token; fallback to user/pass
-    ap.add_argument("--art-token", default=os.getenv("ARTIFACTORY_TOKEN"))
-    ap.add_argument("--art-user",  default=os.getenv("ARTIFACTORY_USER"))
-    ap.add_argument("--art-pass",  default=os.getenv("ARTIFACTORY_PASSWORD"))
+    ap.add_argument("--artifactory-url", required=True, help="Base Artifactory URL, e.g. https://artifactory.example.com")
+    ap.add_argument("--artifactory-repo", required=True, help="Artifactory repository name, e.g. generic-repo")
+    ap.add_argument("--artifactory-user",  default=os.getenv("ARTIFACTORY_USER"))
+    ap.add_argument("--artifactory-pass",  default=os.getenv("ARTIFACTORY_PASSWORD"))
+
     args = ap.parse_args()
 
+    print(args)
+    return
     pj = json.loads(Path(args.plugin_json).read_text(encoding="utf-8"))
     meta = {
         "id": pj["id"],

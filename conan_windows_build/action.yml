@@ -42,6 +42,10 @@ inputs:
     description: "Sentry search root"
     required: false
     default: ""
+  packaging_payload_dirs:
+    description: "Path(s) with packaging payload and additional plugin_info.json"
+    required: false
+    default: "payload"
 runs:
   using: "composite"
   steps:

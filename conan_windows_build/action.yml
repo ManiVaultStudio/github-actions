@@ -164,7 +164,7 @@ runs:
       shell: bash
       run: |
         python3 "$GITHUB_WORKSPACE/conan_windows_build/package_qtifw.py" \
-          --packaging_payload_dirs    "${{ github.event.inputs.packaging_payload_dirs }}" \
+          --packaging-payload-dirs    "${{ github.event.inputs.packaging_payload_dirs }}" \
           --os-short                  "win" \
           --artifactory-url           "https://lkeb-artifactory.lumc.nl:443/artifactory/releases/windows" \
           --artifactory-user          "${{ github.event.inputs.conan_user }}" \

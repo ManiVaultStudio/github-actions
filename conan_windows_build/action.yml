@@ -160,5 +160,12 @@ runs:
         SENTRY_AUTH_TOKEN:   ${{ inputs['sentry-auth-token'] }}
       run: |
         bash "$GITHUB_WORKSPACE/sentry/upload_pdbs.sh" "${{ inputs.sentry-root }}"
-        
+
+    - name: Run Python Qt IFW package publisher
+        run: |
+          python3 package_qtifw.py \
+            --packaging_payload_dirs    "${{ github.event.inputs.packaging_payload_dirs }}" \
+            --os-short                  "Windows" \
+            --artifactory-url           "https://lkeb-artifactory.lumc.nl:443/artifactory/releases/windows" \
+
     

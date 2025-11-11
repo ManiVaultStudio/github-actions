@@ -1,0 +1,55 @@
+name: Build & Upload IFW Component (Python)
+
+on:
+  workflow_dispatch:
+    inputs:
+      os_short:
+        description: "OS key (win|macos|linux)"
+        required: true
+        default: "win"
+      plugin_json_path:
+        description: "Path to plugin.json in the workspace"
+        required: true
+        default: "plugin.json"
+      payload_dir:
+        description: "Path with built files to put in data/"
+        required: true
+        default: "payload"
+
+jobs:
+  publish-ifw-component:
+    runs-on: ubuntu-latest
+    env:
+      ARTIFACTORY_URL:  ${{ secrets.JF_URL }}
+      ARTIFACTORY_REPO: generic-repo
+      ARTIFACTORY_BASE: ifw/${{ github.event.inputs.os_short }}
+      ARTIFACTORY_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # (Optional) pull your payload from artifacts, releases, or S3
+      - name: Download build payload artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: plugin-payload
+          path: payload
+
+      # Put or generate your plugin.json here as needed
+      # - run: cp path/from/upstream/plugin.json .
+
+      - name: Write publisher script
+        run: |
+          cat > ifw_component_publish.py <<'PY'
+          # (script pasted here verbatim)
+          PY
+
+      - name: Run Python publisher
+        run: |
+          python3 ifw_component_publish.py \
+            --plugin-json  "${{ github.event.inputs.plugin_json_path }}" \
+            --payload      "${{ github.event.inputs.payload_dir }}" \
+            --os-short     "${{ github.event.inputs.os_short }}" \
+            --art-url      "${ARTIFACTORY_URL}" \
+            --art-repo     "${ARTIFACTORY_REPO}" \
+            --art-base-path "${ARTIFACTORY_BASE}" \
+            --art-token    "${ARTIFACTORY_TOKEN}"

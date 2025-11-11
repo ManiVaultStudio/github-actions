@@ -65,7 +65,6 @@ def main():
     ap.add_argument("--os-short", required=True, choices=["win","macos","linux"], help="Target OS key used in pathing")
     ap.add_argument("--workdir", default=None, help="Working dir (default: temp)")
     ap.add_argument("--artifactory-url", required=True, help="Base Artifactory URL, e.g. https://artifactory.example.com")
-    ap.add_argument("--artifactory-repo", required=True, help="Artifactory repository name, e.g. generic-repo")
     ap.add_argument("--artifactory-user",  default=os.getenv("ARTIFACTORY_USER"))
     ap.add_argument("--artifactory-pass",  default=os.getenv("ARTIFACTORY_PASSWORD"))
 

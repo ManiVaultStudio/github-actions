@@ -162,6 +162,7 @@ runs:
         bash "$GITHUB_WORKSPACE/sentry/upload_pdbs.sh" "${{ inputs.sentry-root }}"
 
     - name: Run Python Qt IFW package publisher
+      shell: bash
       run: |
         python3 package_qtifw.py \
           --packaging_payload_dirs    "${{ github.event.inputs.packaging_payload_dirs }}" \

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from email.mime import base
-import argparse, json, os, shutil, sys, tempfile, hashlib, time, subprocess
+import argparse, json, os, shutil, sys, tempfile, subprocess
 from pathlib import Path
+from unittest import result
 import requests
 from datetime import date
 import urllib3
@@ -12,14 +12,13 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # ---------------------------
 # Basic helpers
 # ---------------------------
+def print_indented(text, indent_level=1, spaces_per_level=4):
+    prefix = " " * (indent_level * spaces_per_level)
 
-def run(cmd, cwd=None):
-    print(f"+ {' '.join(cmd)}")
-    r = subprocess.run(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    if r.returncode != 0:
-        print(r.stdout)
-        raise RuntimeError(f"Command failed: {' '.join(cmd)}")
-    return r.stdout
+    print("".join(
+        prefix + line if line.strip() else line
+        for line in text.splitlines(keepends=True)
+    ))
 
 def sha1_of_file(p: Path) -> str:
     import hashlib
@@ -34,7 +33,7 @@ def mk_package_xml(dst: Path, meta):
   <Name>{meta["id"]}</Name>
   <DisplayName>{meta["name"]}</DisplayName>
   <Description>{meta["description"]}</Description>
-  <Version>1.0.1</Version>
+  <Version>{ meta["version"] }</Version>
   <ReleaseDate>{meta["release_date"]}</ReleaseDate>
 </Package>
 """, encoding="utf-8")
@@ -153,14 +152,11 @@ def main():
         ap.add_argument("--work-dir", required=True, help="Working directory")
         ap.add_argument("--branch", required=True, help="Branch name")
         ap.add_argument("--os", required=True, choices=["windows","macos","linux"], help="Target OS key (used in pathing)")
-        ap.add_argument("--workdir", default=None, help="Working dir (default: temp)")
         ap.add_argument("--art-url", required=True, help="Base Artifactory URL, e.g. https://artifactory.example.com")
         ap.add_argument("--art-repo", required=True, help="Artifactory repository name, e.g. releases or generic-repo")
         ap.add_argument("--art-base", required=True, help="Base path under repo, e.g. ifw (will append /<os-short>/...)")
         ap.add_argument("--art-user",  default=os.getenv("ARTIFACTORY_USER"))
         ap.add_argument("--art-password",  default=os.getenv("ARTIFACTORY_PASSWORD"))
-        ap.add_argument("--repogen", default="repogen", help="Path to repogen (default: in PATH)")
-        ap.add_argument("--build-id", default=None, help="Build id (unused now; kept for logs)")
         
         args = ap.parse_args()
 
@@ -171,7 +167,7 @@ def main():
 
         is_core_release = branch.startswith("release") and branch.count("/") == 1
 
-        print(is_core_release)
+        print_indented(str(is_core_release), 1)
 
         session = requests.Session()
         
@@ -181,9 +177,8 @@ def main():
         branch_segments         = branch.split("/")
         app_version             = branch_segments[1] if is_core_release else branch_segments[1].replace("core_", "")
         app_version_internal    = app_version.replace(" ", "")
-        plugin_version          = "undefined" if is_core_release else branch_segments[2]
 
-        print(f"""\n=== Parameters ===""")
+        print(f"Packaging parameters:")
         print(f"Artifactory URL:    {args.art_url}")
         print(f"Artifactory repo:   {args.art_repo}")
         print(f"Artifactory base:   {args.art_base}")
@@ -193,15 +188,11 @@ def main():
         print(f"OS:                 {args.os}")
         print(f"App version:        {app_version}")
         print(f"App version (int):  {app_version_internal}")
-        print(f"Plugin version:     {plugin_version}")
 
-        work_dir        = args.work_dir if args.workdir is None else args.workdir
+        work_dir        = args.work_dir if args.work_dir is None else args.work_dir
         temporary_dir   = tempfile.TemporaryDirectory()
         temp_dir        = Path(temporary_dir.name)
-        packages_root   = Path(temp_dir, f"packages-{ plugin_version }")
-
-        print(f"Using temp dir: { packages_root }")
-        
+                
         packaging_recipe_file_path = Path(work_dir, ".packaging", "recipe.json")
 
         if not packaging_recipe_file_path.exists():
@@ -224,45 +215,48 @@ def main():
 
             input_dir           = Path(work_dir, input["dir"])
             post_fix            = input["postfix"]
-            package_id          = f"Com.BioVault.{ str(app_version).title() }.{ post_fix }"
+            package_id          = f"Com.BioVault.{ str(app_version).title() }{ f'.{post_fix}' if post_fix else '' }"
             package_name        = input.get("name", package_id)
-            plugin_info_path    = Path(work_dir, input_dir, plugin_info_json_file_name)
+            plugin_info_path    = None if is_core_release else Path(work_dir, input_dir, plugin_info_json_file_name)
             
-            if not plugin_info_path.exists():
+            if plugin_info_path is not None and not plugin_info_path.exists():
                 raise RuntimeError(f"{ plugin_info_path } not found")
 
-            print(f"\nProcessing input: { input_dir } with postfix { post_fix }")
-            print(f"\tInput dir:        { input_dir }")
-            print(f"\tPackage id:       { package_id }")
-            print(f"\tPackage name:     { package_name }")
-            print(f"\tPlugin info path: { plugin_info_path }")
+            print_indented(f"Processing input: { input_dir } with postfix { post_fix }", 1)
+            print_indented(f"Input dir:        { input_dir }", 2)
+            print_indented(f"Package id:       { package_id }", 2)
+            print_indented(f"Package name:     { package_name }", 2)
+            print_indented(f"Plugin info path: { plugin_info_path }", 2)
 
-            plugin_info = json.loads(plugin_info_path.read_text(encoding="utf-8"))
-            
-            if not "name" in plugin_info:
-                raise RuntimeError(f"{ plugin_info_path } missing name field", file=sys.stderr)
-            
-            if not "version" in plugin_info:
-                raise RuntimeError(f"{ plugin_info_path } missing version field", file=sys.stderr)
-            
-            if not "plugin" in plugin_info["version"]:
-                raise RuntimeError(f"{ plugin_info_path } missing version.plugin field", file=sys.stderr)
+            if not is_core_release:
+                plugin_info = json.loads(plugin_info_path.read_text(encoding="utf-8"))
+                
+                if not "name" in plugin_info:
+                    raise RuntimeError(f"{ plugin_info_path } missing name field", file=sys.stderr)
+                
+                if not "version" in plugin_info:
+                    raise RuntimeError(f"{ plugin_info_path } missing version field", file=sys.stderr)
+                
+                if not "plugin" in plugin_info["version"]:
+                    raise RuntimeError(f"{ plugin_info_path } missing version.plugin field", file=sys.stderr)
 
-            if not "core" in plugin_info["version"]:
-                raise RuntimeError(f"{ plugin_info_path } missing version.core field", file=sys.stderr)
+                if not "core" in plugin_info["version"]:
+                    raise RuntimeError(f"{ plugin_info_path } missing version.core field", file=sys.stderr)
+                
+                plugin_name             = plugin_info["name"]
+                plugin_description      = plugin_info.get("description", "undefined")
+                plugin_version          = plugin_info["version"]["plugin"]
+                plugin_core_versions    = plugin_info["version"]["core"]
             
-            plugin_name             = plugin_info["name"]
-            plugin_description      = plugin_info.get("description", "undefined")
-            plugin_version          = plugin_info["version"]["plugin"]
-            plugin_core_versions    = plugin_info["version"]["core"]
+            packages_root   = Path(temp_dir, "packages")
+            package_root    = Path(packages_root, package_id)
+
+            if package_root.exists():
+                shutil.rmtree(package_root)
             
-            comp_root = Path(packages_root, package_id)
-            
-            if comp_root.exists():
-                shutil.rmtree(comp_root)
-            
-            meta_dir = comp_root / "meta"
-            data_dir = comp_root / "data"
+            print_indented(f"1. Preparing package root at { package_root }", 3)
+            meta_dir = Path(package_root, "meta")
+            data_dir = Path(package_root, "data")
 
             meta_dir.mkdir(parents=True, exist_ok=True)
             data_dir.mkdir(parents=True, exist_ok=True)
@@ -270,8 +264,8 @@ def main():
             mk_package_xml(meta_dir / "package.xml", {
                 "id": package_id,
                 "name": package_name,
-                "version": plugin_version,
-                "description": plugin_description,
+                "version": "1.0" if is_core_release else plugin_version,
+                "description": app_version if is_core_release else plugin_description,
                 "release_date": date.today().isoformat(),
             })
 
@@ -280,16 +274,19 @@ def main():
             local_repo          = Path(temp_dir, f"repo-{ args.os }-{ app_version_internal }")
             remote_component    = f"{ art_base }/packages/{ package_id }"
 
-            print(f"Uploading component to Artifactory at { args.art_url }/{ args.art_repo }/{ remote_component }")
-            art_upload_tree(session, args.art_url, args.art_repo, remote_component, comp_root)
+            print_indented(f"2. Uploading component to Artifactory at { args.art_url }/{ args.art_repo }/{ remote_component }", 3)
+            art_upload_tree(session, args.art_url, args.art_repo, remote_component, package_root)
 
-            print(f"\tDownloading { art_base }/current-repo from Artifactory")
+            print_indented(f"3. Downloading { art_base }/current-repo from Artifactory", 3)
             art_download_repo_current(session, args.art_url, args.art_repo, remote_repo_current, local_repo)
-        
-            print("\tUpdating downloaded current-repo with new package...")
-            run([args.repogen, "--update", "-p", str(packages_root), str(local_repo)])
 
-            print("\tUploading updated current-repo to Artifactory")
+            print_indented("4. Updating downloaded current-repo with new package...", 3)
+            result = subprocess.run(["repogen", "--update", "-p", str(packages_root.absolute()), str(local_repo)])
+            
+            if result.returncode != 0:
+                raise RuntimeError(f"Unable to re-generate package repository ")
+
+            print_indented("5. Uploading updated current-repo to Artifactory", 3)
             art_upload_tree(session, args.art_url, args.art_repo, remote_repo_current, local_repo, upload_updates_last=True)
 
     except Exception as e:

@@ -163,13 +163,13 @@ def main():
         branch      = args.branch
 
         if not work_dir or not Path(work_dir).exists():
-            raise RuntimeError("Invalid or missing work-dir", file=sys.stderr)
+            raise RuntimeError("Invalid or missing work-dir")
         
         if not branch:
-            raise RuntimeError("Invalid or missing branch", file=sys.stderr)
+            raise RuntimeError("Invalid or missing branch")
         
         if not branch.startswith("release/"):
-            raise RuntimeError("Only release/* branches are supported", file=sys.stderr)
+            raise RuntimeError("Only release/* branches are supported")
 
         is_core_release = branch.startswith("release") and branch.count("/") == 1
 
@@ -207,17 +207,17 @@ def main():
         packaging_recipe = json.loads(packaging_recipe_file_path.read_text(encoding="utf-8"))
 
         if not "inputs" in packaging_recipe:
-            raise RuntimeError(f"Packaging recipe missing inputs field", file=sys.stderr)
+            raise RuntimeError(f"Packaging recipe missing inputs field")
         
         inputs                      = packaging_recipe["inputs"]
         plugin_info_json_file_name  = "PluginInfo.json"
 
         for input in inputs:
             if not "dir" in input:
-                raise RuntimeError(f"Input missing dir field", file=sys.stderr)
+                raise RuntimeError(f"Input missing dir field")
             
             if not "postfix" in input:
-                raise RuntimeError(f"Input missing postfix field", file=sys.stderr)
+                raise RuntimeError(f"Input missing postfix field")
 
             input_dir           = Path(work_dir, input["dir"])
             post_fix            = input["postfix"]
@@ -238,16 +238,16 @@ def main():
                 plugin_info = json.loads(plugin_info_path.read_text(encoding="utf-8"))
                 
                 if not "name" in plugin_info:
-                    raise RuntimeError(f"{ plugin_info_path } missing name field", file=sys.stderr)
+                    raise RuntimeError(f"{ plugin_info_path } missing name field")
                 
                 if not "version" in plugin_info:
-                    raise RuntimeError(f"{ plugin_info_path } missing version field", file=sys.stderr)
+                    raise RuntimeError(f"{ plugin_info_path } missing version field")
                 
                 if not "plugin" in plugin_info["version"]:
-                    raise RuntimeError(f"{ plugin_info_path } missing version.plugin field", file=sys.stderr)
+                    raise RuntimeError(f"{ plugin_info_path } missing version.plugin field")
 
                 if not "core" in plugin_info["version"]:
-                    raise RuntimeError(f"{ plugin_info_path } missing version.core field", file=sys.stderr)
+                    raise RuntimeError(f"{ plugin_info_path } missing version.core field")
                 
                 plugin_description  = plugin_info.get("description", "undefined")
                 plugin_version      = plugin_info["version"]["plugin"]
@@ -294,7 +294,7 @@ def main():
             art_upload_tree(session, args.art_url, args.art_repo, remote_repo_current, local_repo, upload_updates_last=True)
 
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+        print(f"Error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

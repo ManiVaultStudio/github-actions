@@ -172,14 +172,14 @@ runs:
       shell: bash
       run: |
         python3 "$GITHUB_WORKSPACE/conan_windows_build/package_qtifw.py" \
-          --repo-dir        "${{ inputs['packaging-repo-dir'] }}" \
-          --payload-dir     "${{ inputs['packaging-payload-dir'] }}" \
-          --branch          "${{ inputs['packaging-branch'] }}" \
+          --repo-dir        "${{ inputs.packaging-repo-dir }}" \
+          --payload-dir     "${{ inputs.packaging-payload-dir }}" \
+          --branch          "${{ inputs.packaging-branch }}" \
           --os              "windows" \
           --art-url         "https://lkeb-artifactory.lumc.nl:443/" \
           --art-repo        "releases" \
           --art-base        "windows" \
-          --art-user        "${{ inputs['conan-user'] }}" \
-          --art-password    "${{ inputs['conan-password'] }}"
+          --art-user        "${{ inputs.conan-user }}" \
+          --art-password    "${{ inputs.conan-password }}"
 
     

@@ -159,8 +159,15 @@ def main():
         
         args = ap.parse_args()
 
-        branch = args.branch
+        work_dir    = args.work_dir if args.work_dir is None else args.work_dir
+        branch      = args.branch
 
+        if not work_dir or not Path(work_dir).exists():
+            raise RuntimeError("Invalid or missing work-dir", file=sys.stderr)
+        
+        if not branch:
+            raise RuntimeError("Invalid or missing branch", file=sys.stderr)
+        
         if not branch.startswith("release/"):
             raise RuntimeError("Only release/* branches are supported", file=sys.stderr)
 
@@ -188,7 +195,7 @@ def main():
         print(f"App version:        {app_version}")
         print(f"App version (int):  {app_version_internal}")
 
-        work_dir        = args.work_dir if args.work_dir is None else args.work_dir
+        
         temporary_dir   = tempfile.TemporaryDirectory()
         temp_dir        = Path(temporary_dir.name)
                 

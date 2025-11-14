@@ -148,7 +148,8 @@ def main():
     try:
         ap = argparse.ArgumentParser(description="Build & upload Qt IFW component(s), update IFW repo(s), and publish to repo-current (OSS-safe)")
         
-        ap.add_argument("--work-dir", required=True, help="Working directory")
+        ap.add_argument("--repo-dir", required=True, help="Package based on this repository directory")
+        ap.add_argument("--payload-dir", required=True, help="Package this (build) directory (or parts of it)")
         ap.add_argument("--branch", required=True, help="Branch name")
         ap.add_argument("--os", required=True, choices=["windows","macos","linux"], help="Target OS key (used in pathing)")
         ap.add_argument("--art-url", required=True, help="Base Artifactory URL, e.g. https://artifactory.example.com")
@@ -159,11 +160,15 @@ def main():
         
         args = ap.parse_args()
 
-        work_dir    = args.work_dir if args.work_dir is None else args.work_dir
-        branch      = args.branch
+        work_dir       = args.repo_dir
+        payload_dir    = args.payload_dir
+        branch         = args.branch
 
         if not work_dir or not Path(work_dir).exists():
-            raise RuntimeError("Invalid or missing work-dir")
+            raise RuntimeError("Invalid or missing repo dir")
+
+        if not payload_dir or not Path(payload_dir).exists():
+            raise RuntimeError("Invalid or missing payload dir")
         
         if not branch:
             raise RuntimeError("Invalid or missing branch")

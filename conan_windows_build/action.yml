@@ -43,7 +43,7 @@ inputs:
     required: false
     default: ""
   packaging-repo-dir:
-    description: "Package based on this repository"
+    description: "Package based on this repository directory"
     required: false
     default: ""
   packaging-payload-dir:

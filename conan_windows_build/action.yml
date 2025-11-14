@@ -168,13 +168,13 @@ runs:
       shell: bash
       run: |
         python3 "$GITHUB_WORKSPACE/conan_windows_build/package_qtifw.py" \
-          --work-dir                  "${{ github.event.inputs.packaging_dir }}" \
-          --branch                    "${{ github.event.inputs.packaging_branch }}" \
-          --os                        "windows" \
-          --art-url                   "https://lkeb-artifactory.lumc.nl:443/" \
-          --art-repo                  "releases" \
-          --art-base                  "windows" \
-          --artifactory-user          "${{ github.event.inputs.conan_user }}" \
-          --artifactory-password      "${{ github.event.inputs.conan_password }}"
+          --work-dir        "${{ github.event.inputs.packaging_dir }}" \
+          --branch          "${{ github.event.inputs.packaging_branch }}" \
+          --os              "windows" \
+          --art-url         "https://lkeb-artifactory.lumc.nl:443/" \
+          --art-repo        "releases" \
+          --art-base        "windows" \
+          --art-user        "${{ github.event.inputs.conan_user }}" \
+          --art-password    "${{ github.event.inputs.conan_password }}"
 
     

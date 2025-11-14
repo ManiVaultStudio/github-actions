@@ -151,7 +151,7 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: ManiVaultStudio/github-actions
-        ref: refs/heads/feature/add_centralized_packaging
+        ref: refs/heads/feature/packaging
         
     - name: Upload matching PDBs to Sentry
       if: ${{ inputs.sentry-upload }}

@@ -42,10 +42,14 @@ inputs:
     description: "Sentry search root"
     required: false
     default: ""
-  packaging_payload_dirs:
-    description: "Path(s) with packaging payload and additional plugin_info.json"
+  packaging_dir:
+    description: "Input directory used for packaging"
     required: false
-    default: "payload"
+    default: ""
+  packaging_branch:
+    description: "Packaging branch"
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -164,9 +168,12 @@ runs:
       shell: bash
       run: |
         python3 "$GITHUB_WORKSPACE/conan_windows_build/package_qtifw.py" \
-          --packaging-payload-dirs    "${{ github.event.inputs.packaging_payload_dirs }}" \
-          --os-short                  "win" \
-          --artifactory-url           "https://lkeb-artifactory.lumc.nl:443/artifactory/releases/windows" \
+          --work-dir                  "${{ github.event.inputs.packaging_dir }}" \
+          --branch                    "${{ github.event.inputs.packaging_branch }}" \
+          --os                        "windows" \
+          --art-url                   "https://lkeb-artifactory.lumc.nl:443/" \
+          --art-repo                  "releases" \
+          --art-base                  "windows" \
           --artifactory-user          "${{ github.event.inputs.conan_user }}" \
           --artifactory-password      "${{ github.event.inputs.conan_password }}"
 

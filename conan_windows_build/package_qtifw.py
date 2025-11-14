@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import argparse, json, os, shutil, sys, tempfile, subprocess
 from pathlib import Path
-from unittest import result
 import requests
 from datetime import date
 import urllib3
@@ -243,10 +242,8 @@ def main():
                 if not "core" in plugin_info["version"]:
                     raise RuntimeError(f"{ plugin_info_path } missing version.core field", file=sys.stderr)
                 
-                plugin_name             = plugin_info["name"]
-                plugin_description      = plugin_info.get("description", "undefined")
-                plugin_version          = plugin_info["version"]["plugin"]
-                plugin_core_versions    = plugin_info["version"]["core"]
+                plugin_description  = plugin_info.get("description", "undefined")
+                plugin_version      = plugin_info["version"]["plugin"]
             
             packages_root   = Path(temp_dir, "packages")
             package_root    = Path(packages_root, package_id)

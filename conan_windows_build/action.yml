@@ -42,8 +42,12 @@ inputs:
     description: "Sentry search root"
     required: false
     default: ""
-  packaging_dir:
-    description: "Input directory used for packaging"
+  packaging_repo:
+    description: "Package based on this repository"
+    required: false
+    default: ""
+  packaging_payload:
+    description: "Package this (build) directory (or parts of it)"
     required: false
     default: ""
   packaging_branch:
@@ -168,7 +172,8 @@ runs:
       shell: bash
       run: |
         python3 "$GITHUB_WORKSPACE/conan_windows_build/package_qtifw.py" \
-          --work-dir        "${{ inputs['packaging-dir'] }}" \
+          --repo            "${{ inputs['packaging-repo'] }}" \
+          --payload         "${{ inputs['packaging-payload'] }}" \
           --branch          "${{ inputs['packaging-branch'] }}" \
           --os              "windows" \
           --art-url         "https://lkeb-artifactory.lumc.nl:443/" \

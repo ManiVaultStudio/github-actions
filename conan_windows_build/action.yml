@@ -130,6 +130,21 @@ runs:
       env:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 
+    - name: Locate Conan package dir
+      id: find_pkg
+      shell: pwsh
+      run: |
+        $env:CONAN_USER_HOME = "$pwd\_conan"
+        $name = conan inspect --raw name conanfile.py
+        # Find: _conan\.conan\data\<name>\*\*\*\package\<package_id>
+        $glob = Join-Path $env:CONAN_USER_HOME ".conan\data\$name\*\*\*\package\*"
+        $pkg  = Get-ChildItem $glob -Directory | Select-Object -First 1
+        if (-not $pkg) { throw "No Conan package dir found in $glob" }
+        # Normalize to forward slashes for bash/composites
+        $p = $pkg.FullName -replace '\\','/'
+        "payload_dir=$p" >> $env:GITHUB_OUTPUT
+        Write-Host "Found package dir: $p"
+        
     - name: Install Sentry CLI
       if: ${{ inputs.sentry-upload }}
       shell: bash
@@ -174,7 +189,7 @@ runs:
       run: |
         python3 "$GITHUB_WORKSPACE/conan_windows_build/package_qtifw.py" \
           --repo-dir        "${{ inputs.packaging-repo-dir }}" \
-          --payload-dir     "${{ inputs.packaging-payload-dir }}" \
+          --payload-dir     "${{ steps.find_pkg.outputs.payload_dir }}" \
           --branch          "${{ inputs.packaging-branch }}" \
           --os              "windows" \
           --art-url         "https://lkeb-artifactory.lumc.nl:443/" \

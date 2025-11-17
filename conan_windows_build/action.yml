@@ -118,18 +118,6 @@ runs:
         CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 
-    - name: Upload to artifactory with conan
-      run: |
-        $env:CONAN_USER_HOME = (Get-Location).tostring() + '\_conan'
-        $package_name = (conan inspect --raw name conanfile.py)
-        $package_ref = $package_name + '/*'
-        echo "Uploading $package_ref  to the Artifactory"
-        conan upload --all --force --confirm -r $Env:CONAN_LKEB_ARTIFACTORY $package_ref
-
-      shell: pwsh
-      env:
-        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
-
     - name: Locate Conan package dir
       id: find_pkg
       shell: pwsh
@@ -144,6 +132,35 @@ runs:
         $p = $pkg.FullName -replace '\\','/'
         "payload_dir=$p" >> $env:GITHUB_OUTPUT
         Write-Host "Found package dir: $p"
+        
+    - name: Run Python Qt IFW package publisher
+      continue-on-error: true
+      shell: bash
+      run: |
+        python3 "$GITHUB_WORKSPACE/conan_windows_build/package_qtifw.py" \
+          --repo-dir        "${{ inputs.packaging-repo-dir }}" \
+          --payload-dir     "${{ steps.find_pkg.outputs.payload_dir }}" \
+          --branch          "${{ inputs.packaging-branch }}" \
+          --os              "windows" \
+          --art-url         "https://lkeb-artifactory.lumc.nl:443/" \
+          --art-repo        "releases" \
+          --art-base        "windows" \
+          --art-user        "${{ inputs.conan-user }}" \
+          --art-password    "${{ inputs.conan-password }}"
+          
+    - name: Upload to artifactory with conan
+      run: |
+        $env:CONAN_USER_HOME = (Get-Location).tostring() + '\_conan'
+        $package_name = (conan inspect --raw name conanfile.py)
+        $package_ref = $package_name + '/*'
+        echo "Uploading $package_ref  to the Artifactory"
+        conan upload --all --force --confirm -r $Env:CONAN_LKEB_ARTIFACTORY $package_ref
+
+      shell: pwsh
+      env:
+        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
+
+    
         
     - name: Install Sentry CLI
       if: ${{ inputs.sentry-upload }}
@@ -183,19 +200,6 @@ runs:
       run: |
         bash "$GITHUB_WORKSPACE/sentry/upload_pdbs.sh" "${{ inputs.sentry-root }}"
 
-    - name: Run Python Qt IFW package publisher
-      continue-on-error: true
-      shell: bash
-      run: |
-        python3 "$GITHUB_WORKSPACE/conan_windows_build/package_qtifw.py" \
-          --repo-dir        "${{ inputs.packaging-repo-dir }}" \
-          --payload-dir     "${{ steps.find_pkg.outputs.payload_dir }}" \
-          --branch          "${{ inputs.packaging-branch }}" \
-          --os              "windows" \
-          --art-url         "https://lkeb-artifactory.lumc.nl:443/" \
-          --art-repo        "releases" \
-          --art-base        "windows" \
-          --art-user        "${{ inputs.conan-user }}" \
-          --art-password    "${{ inputs.conan-password }}"
+    
 
     

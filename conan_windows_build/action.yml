@@ -169,6 +169,7 @@ runs:
         bash "$GITHUB_WORKSPACE/sentry/upload_pdbs.sh" "${{ inputs.sentry-root }}"
 
     - name: Run Python Qt IFW package publisher
+      continue-on-error: true
       shell: bash
       run: |
         python3 "$GITHUB_WORKSPACE/conan_windows_build/package_qtifw.py" \

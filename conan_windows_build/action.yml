@@ -127,7 +127,7 @@ runs:
         $root = (Resolve-Path $root).Path
         Write-Host "Root: $root"
         # Print dirs up to depth 3 relative to _conan
-        Get-ChildItem -Path $root -Directory -Recurse -Depth 3 |
+        Get-ChildItem -Path $root -Directory -Recurse -Depth 6 |
           ForEach-Object {
             $rel = $_.FullName.Substring($root.Length).TrimStart('\','/')
             Write-Host ".\$rel"

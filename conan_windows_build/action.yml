@@ -20,9 +20,6 @@ inputs:
   conan-pem:
     description: "pass secrets.LKEB_CERT_CHAIN"
     required: true
-  rs_ssh_key:
-    description: "pass secrets.RULESSUPPORT_DEPLOY_KEY"
-    required: true
   sentry-upload:
     description: "Whether to upload program database (and associated) files to Sentry"
     required: true

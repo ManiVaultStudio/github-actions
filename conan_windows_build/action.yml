@@ -189,6 +189,7 @@ runs:
         $package_ref = $package_name + '/*'
         echo "Uploading $package_ref  to the Artifactory"
         conan upload --force --confirm -r $Env:CONAN_LKEB_ARTIFACTORY $package_ref
+        conan remove $package_ref!latest -r $Env:CONAN_LKEB_ARTIFACTORY
       shell: pwsh
       env:
         CONAN_LKEB_ARTIFACTORY: lkebartifactory2

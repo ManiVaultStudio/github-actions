@@ -68,10 +68,19 @@ runs:
         $first = $check_list[0]
         "default_build_type=$first" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
       shell: pwsh
-
-    - name: Install conan & build configuration
+      
+    - name: Setup python 3 version
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.12"
+        
+    - name: Install conan
+      uses: conan-io/setup-conan@v1
+      with:
+        version: "2.28"
+        
+    - name: Install additional python build requirements
       run: |
-        pip install conan
         pip install gitpython
         pip install git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
         pip install jinja2-cli
@@ -87,7 +96,7 @@ runs:
         CONAN_PEM: ${{ inputs.conan_pem }}
 
     - name: Get conan config
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         ref: v2
         repository: ManiVaultStudio/github-actions

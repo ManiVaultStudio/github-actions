@@ -26,7 +26,7 @@ runs:
   using: "composite"
   steps:
     - name: Get common matrix
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ManiVaultStudio/github-actions
         ref: v2

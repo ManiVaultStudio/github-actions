@@ -195,10 +195,11 @@ runs:
         $conaninfo = conan inspect . -f json
         $conaninfo = $conaninfo | ConvertFrom-Json
         $package_name = $conaninfo.name
+        $package_version = $conaninfo.version
         $package_ref = $package_name + '/*'
         echo "Uploading $package_ref  to the Artifactory"
         conan upload --force --confirm -r $Env:CONAN_LKEB_ARTIFACTORY $package_ref
-        conan remove $package_name!latest -r $Env:CONAN_LKEB_ARTIFACTORY
+        conan remove $package_name/$package_version#!latest -r $Env:CONAN_LKEB_ARTIFACTORY
       shell: pwsh
       env:
         CONAN_LKEB_ARTIFACTORY: lkebartifactory2

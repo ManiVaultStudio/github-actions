@@ -65,6 +65,40 @@ The blog from "Declaration of Var" documents the progress of a complex, multi-de
 
 As the blog name suggests this project settled on a vcpkg solution though conan v1 and v2 were considered. The work needed to get conan working in their build environment was [judged to be prohibitive](https://decovar.dev/blog/2022/10/30/cpp-dependencies-with-vcpkg/#an-update-after-a-second-attempt). 
 
+It seems that vcpkg combined with a team/CI-wide binary cache results in a [performant build infrastructure](https://decovar.dev/blog/2022/10/30/cpp-dependencies-with-vcpkg/#2024-10-11--caching-in-jfrog-artifactory) 
+
+However there will be other issues with vck pkg
+
+1. [How to achieve dynamic versioning](Dynamic-versioning-with-vcpkg). Requirements are baked into the vcpkg.json file.  
+
+#### Dynamic versioning with vcpkg
+
+In conan overriding the **requirements()** function allowed us to dynamically version the core according to the branch naming rules (or for that matter any other ManiVault internal repo dependency). 
+
+Possibilities: 
+
+1. In vckpkg we need some kind of wrapper script, in python or CMake that can generate/modify the vcpkg.json from a template before triggering the build. Such a template might look like this.
+
+```
+{
+  "name": "MyPlugin",
+  "version-semver": "1.0.0",
+  "dependencies": [
+    { "name": "core", "version=": "@branch_version@" },
+    { "name": "MyDataPlugin", "version=": "@branch_version" },
+    { "name": "fmt", }
+  ],
+  "builtin-baseline":"aaaaannnn"
+}
+```
+
+2. Alternatively an overlay-ports directory could be used with generating entries. (commandline )  
+
+3. Or possible adding overrides to the vcpkg.json is the best option.
+
+**Integration into existing tooling** 
+Possibly these functions could be integrated with a ManiVault DevBundle v2 tool. A future version of DevBundle could be say uv installable and come with a number of vcpkg helper subcommand. 
+
 
 
 

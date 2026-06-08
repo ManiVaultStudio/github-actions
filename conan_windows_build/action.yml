@@ -11,11 +11,11 @@ inputs:
   conan-build-type:
     description: "Debug or Release"
     required: true
-  conan-user:
-    description: "pass secrets.LKEB_ARTIFACTORY_USER"
+  vcpkg-artifactory-url:
+    description: "pass secrets.VCPKG_ARTIFACTORY_URL"
     required: true
-  conan-password:
-    description: "pass secrets.LKEB_ARTIFACTORY_PASSWORD"
+  vcpkg-artifactory-token:
+    description: "pass secrets.VCPKG_ARTIFACTORY_TOKEN"
     required: true
   conan-pem:
     description: "pass secrets.LKEB_CERT_CHAIN"
@@ -45,116 +45,66 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install conan & build configuration
-      run: |
-        pip install conan~=1.66.0
-        pip install gitpython
-        pip install git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
+      - name: Clone vcpkg
+        uses: actions/checkout@v6
+        with:
+          repository: microsoft/vcpkg
+          path: .vcpkg
 
-        REM Fish the package name from the conanfile.py
-        conan inspect -j __props__.json -a name conanfile.py
-        for /f "delims=" %%a in ('powershell -Command "foreach ($Line in (Get-Content -Raw __props__.json | ConvertFrom-Json)) { Write-Host $Line.Name}"') do set PACKAGE_NAME=%%a
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13' 
 
-        echo CMake version:
-        cmake --version
-        set CONAN_USER_HOME=%cd%\_conan
-        mkdir %CONAN_USER_HOME%
-        conan user
+      - name: Bootstrap vcpkg and python
+        shell: pwsh
+        run: | 
+          $vcpkgRoot = Join-Path "${{ github.workspace }}" ".vcpkg"
+          echo "VCPKG_ROOT=$vcpkgRoot" >> $env:GITHUB_ENV
+          if ($env:RUNNER_OS -eq "Windows") {
+            & "${{ github.workspace }}\.vcpkg\bootstrap-vcpkg.bat" -disableMetrics
+            $python = Join-Path $env:pythonLocation "python.exe"
+          } else {
+            & "${{ github.workspace }}\.vcpkg\bootstrap-vcpkg.sh" -disableMetrics
+            $python = Join-Path $env:pythonLocation "bin" "python3"
+          }
+          Add-Content -Path $env:GITHUB_ENV -Value "PYTHON3_EXECUTABLE=$python"
+          echo ${{ github.workspace }}\.vcpkg\ >> $GITHUB_PATH
+          echo "VCPKG_FEATURE_FLAGS=registries" >> $env:GITHUB_ENV
+          $config_path = Join-Path ${{ github.workspace }} test registry-tester vcpkg-configuration.json
+          echo "VCPKG_CONFIG_FILE=$config-path" >> $env:GITHUB_ENV
+          $test_workdir = Join-Path ${{ github.workspace }} test registry-tester
+          Add-Content -Path $env:GITHUB_ENV -Value "TEST_WORKDIR=$test_workdir"
 
-        echo Extend conan cacert.pem
-        for /f "delims=" %%i in ('conan config home') do set CONANPEMHOME=%%i
-        SETLOCAL EnableDelayedExpansion
-        echo !CONAN_PEM! >> %CONANPEMHOME%\cacert.pem
-        ENDLOCAL
+      - name: Install required Python packages
+        shell: pwsh
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install requests packaging colorama
 
-        REM Fish the package name from the conanfile.py
-        for /f "delims=" %%i in ('conan inspect --raw name conanfile.py') do set CONAN_PACKAGE_NAME=%%i
-        echo "Completed setup for package: %CONAN_PACKAGE_NAME%"
+      - name: Install Linux build dependencies and add pem chain to cert store
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build pkg-config
+          sudo cp lkebartifactory.nl.crt /usr/local/share/ca-certificates/
+          sudo update-ca-certificates                    
 
-      shell: cmd
-      env:
-        CONAN_PEM: ${{ inputs.conan-pem }}
+      - name: Configure project   # this drives the port build
+        shell: pwsh
+        env:
+          VCPKG_KEEP_ENV_VARS: "PYTHON3_EXECUTABLE;SEVEN_ZIP_EXECUTABLE"
+          VCPKG_BINARY_SOURCES: "clear;http,${{ inputs.vcpkg-artifactory-url }}/{name}/{version}/{triplet}/{sha},readwrite,Authorization: Bearer ${{ inputs.vcpkg-artifactory-token }}" 
+        run: |
+          $preset = if ($IsWindows) { "vcpkg-windows" }
+            elseif ($IsLinux) { "vcpkg-linux" }
+            else { "vcpkg-macos" }
+          $buildDir = Join-Path "." "build"
+          cmake --preset $preset -S . -B $buildDir  
 
-    - name: Build with conan
-      run: |
-        for /f "delims=" %%i in ('where cmake') do set CONAN_CMAKE_PROGRAM="%%i"
-        set CONAN_USER_HOME=%cd%\_conan
-        set VS170COMNTOOLS="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools"
-
-        echo Add LKEB artifactory as remote at URL: %CONAN_UPLOAD%
-        conan remote add %CONAN_LKEB_ARTIFACTORY% %CONAN_UPLOAD%
-        echo Add upload user
-        conan user -r %CONAN_LKEB_ARTIFACTORY% -p ${{ inputs.conan-password }} ${{ inputs.conan-user }}
-        conan profile new action_build
-        conan profile update settings.os=Windows action_build
-        conan profile update settings.os_build=Windows action_build
-        conan profile update settings.arch=x86_64 action_build
-        conan profile update settings.compiler="Visual Studio" action_build
-        conan profile update settings.compiler.runtime=${{ inputs.conan-visual-runtime }} action_build
-        conan profile update settings.compiler.version=${{ inputs.conan-visual-version }} action_build
-        conan profile update settings.build_type=${{ inputs.conan-build-type }} action_build
-        conan profile update options.:shared=%BUILD_SHARED% action_build
-        conan profile show action_build
-
-        mkdir _build
-        if exist .\external\conan-recipes conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable
-        conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build
-
-      shell: cmd
-      env:
-        BUILD_SHARED: True
-        CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
-        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
-
-    - name: Upload to artifactory with conan
-      run: |
-        $env:CONAN_USER_HOME = (Get-Location).tostring() + '\_conan'
-        $package_name = (conan inspect --raw name conanfile.py)
-        $package_ref = $package_name + '/*'
-        echo "Uploading $package_ref  to the Artifactory"
-        conan upload --all --force --confirm -r $Env:CONAN_LKEB_ARTIFACTORY $package_ref
-
-      shell: pwsh
-      env:
-        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
-
-    - name: Install Sentry CLI
-      if: ${{ inputs.sentry-upload }}
-      shell: bash
-      run: |
-        set -euo pipefail
-        curl -sSfL https://sentry.io/get-cli/ | bash
-    
-        if [ -x "/usr/local/bin/sentry-cli" ]; then
-          echo "/usr/local/bin" >> "$GITHUB_PATH"
-        fi
-        if [ -x "$HOME/.sentry-cli/bin/sentry-cli" ]; then
-          echo "$HOME/.sentry-cli/bin" >> "$GITHUB_PATH"
-        fi
-        
-    - name: Verify Sentry CLI installation
-      if: ${{ inputs.sentry-upload }}
-      shell: bash
-      run: |
-        which sentry-cli || true
-        sentry-cli --version
-
-    - name: Checkout the source
-      if: ${{ inputs.sentry-upload }}
-      uses: actions/checkout@v4
-      with:
-        repository: ManiVaultStudio/github-actions
-        ref: refs/heads/upload_pdbs
-        
-    - name: Upload matching PDBs to Sentry
-      if: ${{ inputs.sentry-upload }}
-      shell: bash
-      env:
-        SENTRY_URL:         ${{ inputs['sentry-url'] }}
-        SENTRY_ORG:         ${{ inputs['sentry-org'] }}
-        SENTRY_PROJECT:     ${{ inputs['sentry-project'] }}
-        SENTRY_AUTH_TOKEN:   ${{ inputs['sentry-auth-token'] }}
-      run: |
-        bash "$GITHUB_WORKSPACE/sentry/upload_pdbs.sh" "${{ inputs.sentry-root }}"
-        
-    
+      - name: Build tester
+        shell: pwsh
+        run: | 
+          Set-Location "$env:TEST_WORKDIR"
+          cmake --build .\build

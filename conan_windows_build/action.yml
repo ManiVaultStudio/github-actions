@@ -109,7 +109,7 @@ runs:
         with:
           name: vcpkg-manifest-install-log
           path: | 
-            **/build/vcpkg-manifest-install.log
+            D:/a/core/core/build/vcpkg-manifest-install.log
 
 
       - name: Build tester

@@ -101,7 +101,17 @@ runs:
             elseif ($IsLinux) { "vcpkg-linux" }
             else { "vcpkg-macos" }
           $buildDir = Join-Path "." "build"
-          cmake --preset $preset -S . -B $buildDir  
+          cmake --preset $preset -S . -B $buildDir 
+   
+      - name: Upload vcpkg install log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcpkg-manifest-install-log
+          path: | 
+            test/registry-tester/build/vcpkg-manifest-install.log
+            "/home/runner/work/vcpkg-registry/vcpkg-registry/.vcpkg/buildtrees/{name}/config-{triplet}-out.log"
+
 
       - name: Build tester
         shell: pwsh

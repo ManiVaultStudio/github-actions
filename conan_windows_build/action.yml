@@ -59,7 +59,7 @@ runs:
       - name: Enable Windows Long Paths
         if: runner.os == 'Windows'
         run: New-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
-        shell: powershell
+        shell: pwsh
 
       - name: Bootstrap vcpkg and python
         shell: pwsh

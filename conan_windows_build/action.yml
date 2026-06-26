@@ -107,6 +107,7 @@ runs:
             elseif ($IsLinux) { "vcpkg-linux" }
             else { "vcpkg-macos" }
           $buildDir = Join-Path "." "build"
+          vcpkg search hdilib --debug
           cmake --preset $preset -S . -B $buildDir 
    
       - name: Upload vcpkg install log on failure

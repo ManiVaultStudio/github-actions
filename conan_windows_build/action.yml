@@ -107,7 +107,6 @@ runs:
             elseif ($IsLinux) { "vcpkg-linux" }
             else { "vcpkg-macos" }
           $buildDir = Join-Path "." "build"
-          Remove-Item -Recurse -Force "$env:LOCALAPPDATA\vcpkg\registries\git"
           vcpkg search hdilib --debug
           cmake --preset $preset -S . -B $buildDir 
    

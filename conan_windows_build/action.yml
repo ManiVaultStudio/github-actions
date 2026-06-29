@@ -109,7 +109,7 @@ runs:
           $buildDir = Join-Path "." "build"
           $installDir = Join-Path $buildDir "install"
           vcpkg search hdilib --debug
-          cmake --preset $preset -S . -B $buildDir -DMV_INSTALL_DIR=$installDir
+          cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir"
    
       - name: Upload vcpkg install log on failure
         if: failure()

@@ -128,4 +128,4 @@ runs:
         env:
           VCPKG_FEATURE_FLAGS: "versions,registries"
         run: | 
-          cmake --build .\build
+          cmake --build .\build -DCMAKE_BUILD_TYPE=Release

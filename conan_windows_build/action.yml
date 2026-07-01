@@ -103,6 +103,9 @@ runs:
           VCPKG_BINARY_SOURCES: "clear;http,${{ inputs.vcpkg-artifactory-url }}/{name}/{version}/{triplet}/{sha},readwrite,Authorization: Bearer ${{ inputs.vcpkg-artifactory-token }}" 
           VCPKG_FEATURE_FLAGS: "versions,registries"
         run: |
+          $sevenZip = (Get-Command 7z).Source
+          echo "7z at $sevenZip"
+          $env:SEVEN_ZIP_EXECUTABLE = $sevenZip
           $preset = if ($IsWindows) { "vcpkg-windows" }
             elseif ($IsLinux) { "vcpkg-linux" }
             else { "vcpkg-macos" }

@@ -76,10 +76,10 @@ runs:
           Add-Content -Path $env:GITHUB_ENV -Value "PYTHON3_EXECUTABLE=$python"
           echo ${{ github.workspace }}\.vcpkg\ >> $GITHUB_PATH
           echo "VCPKG_FEATURE_FLAGS=registries" >> $env:GITHUB_ENV
-          $config_path = Join-Path ${{ github.workspace }} test registry-tester vcpkg-configuration.json
-          echo "VCPKG_CONFIG_FILE=$config-path" >> $env:GITHUB_ENV
-          $test_workdir = Join-Path ${{ github.workspace }} test registry-tester
-          Add-Content -Path $env:GITHUB_ENV -Value "TEST_WORKDIR=$test_workdir"
+# $config_path = Join-Path ${{ github.workspace }} test registry-tester vcpkg-configuration.json
+# echo "VCPKG_CONFIG_FILE=$config-path" >> $env:GITHUB_ENV
+# $test_workdir = Join-Path ${{ github.workspace }} test registry-tester
+# Add-Content -Path $env:GITHUB_ENV -Value "TEST_WORKDIR=$test_workdir"
 
       - name: Install required Python packages
         shell: pwsh

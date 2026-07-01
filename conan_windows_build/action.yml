@@ -111,7 +111,7 @@ runs:
             else { "vcpkg-macos" }
           $buildDir = Join-Path "." "build"
           $installDir = Join-Path $buildDir "install"
-          cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir"
+          cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release
    
       - name: Upload vcpkg install log on failure
         if: failure()
@@ -128,4 +128,4 @@ runs:
         env:
           VCPKG_FEATURE_FLAGS: "versions,registries"
         run: | 
-          cmake --build .\build -DCMAKE_BUILD_TYPE=Release
+          cmake --build .\build 

@@ -122,10 +122,10 @@ runs:
             D:/a/core/core/build/vcpkg-manifest-install.log
 
 
+# Set-Location "$env:TEST_WORKDIR"
       - name: Build tester
         shell: pwsh
         env:
           VCPKG_FEATURE_FLAGS: "versions,registries"
         run: | 
-          Set-Location "$env:TEST_WORKDIR"
           cmake --build .\build

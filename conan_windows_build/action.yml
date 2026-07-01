@@ -128,10 +128,10 @@ runs:
         env:
           VCPKG_FEATURE_FLAGS: "versions,registries"
         run: | 
-          cmake --build .\build 
-        continue-on-error: true
+          cmake --build .\build --config Release
 
       - name: Upload raw log
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: compiler-logs

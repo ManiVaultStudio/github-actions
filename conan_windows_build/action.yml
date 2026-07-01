@@ -129,3 +129,10 @@ runs:
           VCPKG_FEATURE_FLAGS: "versions,registries"
         run: | 
           cmake --build .\build 
+          continue-on-error: true
+
+      - name: Upload raw log
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiler-logs
+          path: build_log.txt

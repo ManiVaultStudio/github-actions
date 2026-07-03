@@ -109,7 +109,7 @@ runs:
           $preset = if ($IsWindows) { "vcpkg-windows" }
             elseif ($IsLinux) { "vcpkg-linux" }
             else { "vcpkg-macos" }
-          $buildDir = Join-Path "." "build"
+          $buildDir = "${{ github.workspace }}" "build"
           $installDir = Join-Path $buildDir "install"
           cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release
    

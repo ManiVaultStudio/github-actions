@@ -142,7 +142,7 @@ runs:
 
     - name: Checkout the source
       if: ${{ inputs.sentry-upload }}
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ManiVaultStudio/github-actions
         ref: refs/heads/upload_pdbs

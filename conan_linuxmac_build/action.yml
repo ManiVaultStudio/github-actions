@@ -42,7 +42,7 @@ runs:
     - name: Install conan & build configuration
       run: |
         if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-          sudo apt install -y ninja-build libtbb-dev wget
+          sudo apt install -y ninja-build libtbb-dev libicu-dev wget
         fi
 
         if [[ "$OSTYPE" == "darwin"* ]]; then

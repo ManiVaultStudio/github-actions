@@ -63,6 +63,7 @@ runs:
         
         pip install conan~=1.66.0
         pip install gitpython
+        pip install packaging
         pip install -v git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
 
         export CONAN_CMAKE_PROGRAM=`which cmake`

@@ -36,24 +36,13 @@ inputs:
     description: "pass secrets.LKEB_CERT_CHAIN"
     required: true
 
-# Ubuntu 24.04 ships with libicu 74, see https://launchpad.net/ubuntu/+source/icu
-# but we some dependencies (qt 6.8) expect libicu 73, so we download is manually
 runs:
   using: "composite"
   steps:
     - name: Install conan & build configuration
       run: |
         if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-          sudo apt install -y ninja-build
-          sudo apt install -y libtbb-dev
-          sudo apt install -y wget
-
-          echo "Downloading libicu73..."
-          sudo wget -q https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-Ubuntu22.04-x64.tgz
-          sudo tar -xf icu4c-73_2-Ubuntu22.04-x64.tgz
-          sudo find ./icu/usr/local/lib/ -name "*.73*" -print0 | sudo xargs -0 cp -r -t /usr/lib/x86_64-linux-gnu/
-          sudo rm -rf ./icu/
-          sudo rm -rf icu4c-73_2-Ubuntu22.04-x64.tgz
+          sudo apt install -y ninja-build libtbb-dev wget
         fi
 
         if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -95,7 +84,7 @@ runs:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 
     - name: Get compatibility logic
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ManiVaultStudio/github-actions
         ref: compatibility

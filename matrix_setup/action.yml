@@ -5,11 +5,9 @@ inputs:
     description: | 
       "A list of matrix ids to be used. Choose from
 
-       - windows_2019 
        - windows_2022 
        - linux_gcc11 
        - linux_gcc13 
-       - macos_code14 [x86]
        - macos_code15 [arm]
        - macos_code16 [arm]
        
@@ -26,7 +24,7 @@ runs:
   using: "composite"
   steps:
   - name: Get common matrix  
-    uses: actions/checkout@v4
+    uses: actions/checkout@v6
     with:
       repository: ManiVaultStudio/github-actions
       ref: main

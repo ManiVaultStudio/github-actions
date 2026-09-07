@@ -1,5 +1,5 @@
 # common_actions
-GitHub actions that can be reused in other hdps repos for CI or other purposes.
+GitHub actions that can be reused in other ManiVault repos for CI or other purposes.
 
 ## Why is this necessary?
 
@@ -26,12 +26,12 @@ Centralize the common CI actions in one repository. Usage depends on the securit
 With a read-only repo using the actions is reltively simple. Use as follows:
 
 ```yaml
-- name: Checkout hdps/common_actions
-  uses: hdps/common-actions/conan_windows_build@master
+- name: Checkout ManiVaultStudio/github-actions
+  uses: ManiVaultStudio/github-actions/conan_windows_build@master
     ...
 
-- name: Checkout hdps/common_actions
-  uses: hdps/common-actions/conan_linuxmac_build@master
+- name: Checkout ManiVaultStudio/github-actions
+  uses: ManiVaultStudio/github-actions/conan_linuxmac_build@master
     ...
 ```
 
@@ -41,10 +41,10 @@ A more complex approach is needed: Clone the repository to the .github/common_ac
 
 ```yaml
 - uses: actions/checkout@v2
-- name: Checkout hdps/common_actions
+- name: Checkout ManiVaultStudio/github-actions
   uses: actions/checkout@v2
   with:
-    repository: hdps/common_actions
+    repository: ManiVaultStudio/github-actions
     ref: refs/heads/master
     ssh-key: ${{ secrets.CA_SSH_PRIVATEKEY }}
     persist-credentials: false

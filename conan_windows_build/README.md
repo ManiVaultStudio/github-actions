@@ -1,13 +1,11 @@
-## Reusable composite action for hdps core or plugin build with Conan
-This action supports Windows(2016)
-
-Initial testing for Windows(2019) suggests that the chocolatey install of openssh could be skipped.
+## Reusable composite action for ManiVault core or plugin build with Conan
+This action supports Windows.
 
 ### conan_build_windowsc Inputs
 
 ```
   conan-visual-version:
-    description: 'MSVC version: 16, 17 represent msvc-2019 and msvc-2022'
+    description: 'MSVC version: 16 and 17 represent msvc-2019 and msvc-2022 respectively'
     required: true
   conan-visual-runtime:
     description: 'MD or MDd'

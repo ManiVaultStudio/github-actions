@@ -77,7 +77,7 @@ function(find_artifactory_package)
 
     if (res_length GREATER 1)
         dump_file("${PROJECT_BINARY_DIR}/aql.json" "Search file contents")
-        message(FATAL_ERROR "Too many matching artifactory packages found. Contact the HDPS group for more info and supply the aql_out.txt and aql.json files")
+        message(FATAL_ERROR "Too many matching artifactory packages found. Contact the ManiVault group for more info and supply the aql_out.txt and aql.json files")
     endif()
 
     list(GET result_file 0 path_line)

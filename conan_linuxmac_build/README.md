@@ -1,5 +1,5 @@
-## Reusable composite action for hdps core or plugin build with Conan
-This action supportss Linux or macOS
+## Reusable composite action for ManiVault core or plugin build with Conan
+This action supports Linux or macOS.
 
 ### conan_build_linuxmac Inputs
 ```

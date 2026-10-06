@@ -93,7 +93,7 @@ runs:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 
     - name: Get compatibility logic
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: ManiVaultStudio/github-actions
         ref: compatibility

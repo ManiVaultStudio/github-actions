@@ -22,7 +22,7 @@ inputs:
     required: true
   rs_ssh_key:
     description: "pass secrets.RULESSUPPORT_DEPLOY_KEY"
-    required: true
+    required: false
   sentry-upload:
     description: "Whether to upload program database (and associated) files to Sentry"
     required: true
@@ -50,7 +50,7 @@ runs:
         pip install conan~=1.66.0
         pip install gitpython
         pip install packaging
-        pip install git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
+        pip install git+https://git@github.com/ManiVaultStudio/rulessupport.git@master
 
         REM Fish the package name from the conanfile.py
         conan inspect -j __props__.json -a name conanfile.py

@@ -28,16 +28,16 @@ inputs:
     required: true
   sentry-url:
     description: "pass secrets.LKEB_SENTRY_URL"
-    required: true
+    required: false
   sentry-org:
     description: "pass secrets.LKEB_SENTRY_ORG"
-    required: true
+    required: false
   sentry-project:
     description: "pass secrets.LKEB_SENTRY_PROJECT"
-    required: true
+    required: false
   sentry-auth-token:
     description: "pass secrets.LKEB_SENTRY_AUTH_TOKEN"
-    required: true
+    required: false
   sentry-root:
     description: "Sentry search root"
     required: false

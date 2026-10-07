@@ -160,3 +160,4 @@ runs:
       shell: bash
       env:
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
+        MV_BUILD_TESTING: ${{ inputs.run-tests }}

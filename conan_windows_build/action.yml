@@ -42,6 +42,10 @@ inputs:
     description: "Sentry search root"
     required: false
     default: ""
+  run-tests:
+    description: "Enable and run CMake tests"
+    required: false
+    default: "false"
 runs:
   using: "composite"
   steps:

@@ -35,6 +35,10 @@ inputs:
   conan-pem:
     description: "pass secrets.LKEB_CERT_CHAIN"
     required: true
+  run-tests:
+    description: "Enable and run CMake tests"
+    required: false
+    default: "false"
 
 # Ubuntu 24.04 ships with libicu 74, see https://launchpad.net/ubuntu/+source/icu
 # but we some dependencies expect libicu 73, so we download manually

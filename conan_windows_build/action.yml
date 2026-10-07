@@ -108,6 +108,7 @@ runs:
       shell: cmd
       env:
         BUILD_SHARED: True
+        MV_BUILD_TESTING: ${{ inputs.run-tests }}
         CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 

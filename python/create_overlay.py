@@ -20,7 +20,28 @@ with open(toml_file, "rb") as f:
 consumer_branch = os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME", "main")
 print(f"Consumer active branch: {consumer_branch}")
 
-template_port = Path(Path(__file__).resolve().parent, "templates/portfile.cmake")
+template_port_file = '''
+# ports/template/portfile.cmake
+# Automatically generated/copied overlay portfile
+
+# CMAKE_CURRENT_LIST_DIR is ports/<package_name>
+# Resolves to external/<package_name>
+get_filename_component(PORT_NAME "${CMAKE_CURRENT_LIST_DIR}" NAME)
+set(SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/../../external/${PORT_NAME}")
+
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
+)
+
+vcpkg_cmake_install()
+vcpkg_cmake_config_fixup(PACKAGE_NAME "${PORT_NAME}")
+
+if(EXISTS "${SOURCE_PATH}/LICENSE")
+    vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
+endif()
+'''
+
+#template_port = Path(Path(__file__).resolve().parent, "templates/portfile.cmake")
 
 for key, config in deps.items():
     repo = config["repo"]
@@ -60,5 +81,8 @@ for key, config in deps.items():
     # 2. Inject overlay portfile into ports/<package_name>/portfile.cmake
     port_dir.mkdir(parents=True, exist_ok=True)
     target_portfile = port_dir / "portfile.cmake"
-    shutil.copy(template_port, target_portfile)
+    with open(target_portfile, "w", encoding="utf-8") as f:
+        f.write(template_port_file)
+
+    #shutil.copy(template_port, target_portfile)
     print(f"Injected portfile for {package_name} -> {target_portfile}")

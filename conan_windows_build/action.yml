@@ -94,7 +94,22 @@ runs:
           sudo apt-get update
           sudo apt-get install -y build-essential cmake ninja-build pkg-config
           sudo cp lkebartifactory.nl.crt /usr/local/share/ca-certificates/
-          sudo update-ca-certificates                    
+          sudo update-ca-certificates 
+
+      # Process mv_deps.toml if present to produce 
+      # an overlay for the ManiVault dependencies
+      - name: Create overlay from mv_deps.toml
+        shell: pwsh
+        run: |
+          python3 ${{ github.action_path }}/../python/create_overlay.py
+          ls -R ./ports
+          ls -R ./external
+
+      # vcpkg automatically resolves ports under ./ports based on vcpkg-configuration.json
+      - name: Run vcpkg install
+        shell: pwsh
+        run: |
+          vcpkg --debug install             
 
       - name: Configure project   # this drives the port build
         shell: pwsh

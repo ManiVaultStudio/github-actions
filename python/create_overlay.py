@@ -86,3 +86,14 @@ for key, config in deps.items():
 
     #shutil.copy(template_port, target_portfile)
     print(f"Injected portfile for {package_name} -> {target_portfile}")
+
+    # 3. Copy the provider's manifest vcpkg.json into the overlay port directory
+    provider_manifest = submodule_dir / "vcpkg.json"
+    target_manifest = port_dir / "vcpkg.json"
+
+    if provider_manifest.exists():
+        shutil.copy(provider_manifest, target_manifest)
+        print(f"Copied manifest from {provider_manifest} -> {target_manifest}")
+    else:
+        pass
+        

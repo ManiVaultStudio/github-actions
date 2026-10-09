@@ -108,6 +108,10 @@ runs:
       # vcpkg automatically resolves ports under ./ports based on vcpkg-configuration.json
       - name: Run vcpkg install
         shell: pwsh
+        env:
+          VCPKG_KEEP_ENV_VARS: "PYTHON3_EXECUTABLE;SEVEN_ZIP_EXECUTABLE"
+          VCPKG_BINARY_SOURCES: "clear;http,${{ inputs.vcpkg-artifactory-url }}/{name}/{version}/{triplet}/{sha},readwrite,Authorization: Bearer ${{ inputs.vcpkg-artifactory-token }}" 
+          VCPKG_FEATURE_FLAGS: "versions,registries"
         run: |
           vcpkg --debug install             
 

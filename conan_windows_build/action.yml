@@ -113,7 +113,7 @@ runs:
           VCPKG_BINARY_SOURCES: "clear;http,${{ inputs.vcpkg-artifactory-url }}/{name}/{version}/{triplet}/{sha},readwrite,Authorization: Bearer ${{ inputs.vcpkg-artifactory-token }}" 
           VCPKG_FEATURE_FLAGS: "versions,registries"
         run: |
-          vcpkg --debug install             
+          vcpkg --debug --overlay-ports=./ports install             
 
       - name: Configure project   # this drives the port build
         shell: pwsh

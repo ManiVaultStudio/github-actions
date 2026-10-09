@@ -20,7 +20,7 @@ with open(toml_file, "rb") as f:
 consumer_branch = os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME", "main")
 print(f"Consumer active branch: {consumer_branch}")
 
-template_port = Path(Path(__file__).resolve().parent(), ".templates/portfile.cmake")
+template_port = Path(Path(__file__).resolve().parent, ".templates/portfile.cmake")
 
 for key, config in deps.items():
     repo = config["repo"]

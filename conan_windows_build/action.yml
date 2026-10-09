@@ -22,22 +22,22 @@ inputs:
     required: true
   rs_ssh_key:
     description: "pass secrets.RULESSUPPORT_DEPLOY_KEY"
-    required: true
+    required: false
   sentry-upload:
     description: "Whether to upload program database (and associated) files to Sentry"
     required: true
   sentry-url:
     description: "pass secrets.LKEB_SENTRY_URL"
-    required: true
+    required: false
   sentry-org:
     description: "pass secrets.LKEB_SENTRY_ORG"
-    required: true
+    required: false
   sentry-project:
     description: "pass secrets.LKEB_SENTRY_PROJECT"
-    required: true
+    required: false
   sentry-auth-token:
     description: "pass secrets.LKEB_SENTRY_AUTH_TOKEN"
-    required: true
+    required: false
   sentry-root:
     description: "Sentry search root"
     required: false
@@ -54,7 +54,7 @@ runs:
         pip install conan~=1.66.0
         pip install gitpython
         pip install packaging
-        pip install git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
+        pip install git+https://git@github.com/ManiVaultStudio/rulessupport.git@master
 
         REM Fish the package name from the conanfile.py
         conan inspect -j __props__.json -a name conanfile.py
@@ -147,7 +147,7 @@ runs:
 
     - name: Checkout the source
       if: ${{ inputs.sentry-upload }}
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: ManiVaultStudio/github-actions
         ref: refs/heads/upload_pdbs

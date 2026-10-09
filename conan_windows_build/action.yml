@@ -123,9 +123,10 @@ runs:
 
 
 # Set-Location "$env:TEST_WORKDIR"
-      - name: Build tester
+      - name: Build project
         shell: pwsh
         env:
+          VCPKG_BINARY_SOURCES: "clear;http,${{ inputs.vcpkg-artifactory-url }}/{name}/{version}/{triplet}/{sha},readwrite,Authorization: Bearer ${{ inputs.vcpkg-artifactory-token }}" 
           VCPKG_FEATURE_FLAGS: "versions,registries"
         run: | 
           cmake --build .\build --config Release

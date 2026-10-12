@@ -101,9 +101,11 @@ runs:
       - name: Create overlay from mv_deps.toml
         shell: pwsh
         run: |
-          python3 ${{ github.action_path }}/../python/create_overlay.py
-          ls -R ./ports
-          ls -R ./external
+          if (Test-Path -path ./mv_deps.toml) {
+            python3 ${{ github.action_path }}/../python/create_overlay.py
+            ls -R ./ports
+            ls -R ./external
+          }
 
       # vcpkg automatically resolves ports under ./ports based on vcpkg-configuration.json
       - name: Run vcpkg install

@@ -115,8 +115,7 @@ runs:
           VCPKG_BINARY_SOURCES: "clear;http,${{ inputs.vcpkg-artifactory-url }}/{name}/{version}/{triplet}/{sha},readwrite,Authorization: Bearer ${{ inputs.vcpkg-artifactory-token }}" 
           VCPKG_FEATURE_FLAGS: "versions,registries"
         run: |
-          $buildDir = Join-Path "${{ github.workspace }}" "build"
-          cd $buildDir
+          cd "${{ github.workspace }}"
           vcpkg --debug install             
 
       - name: Configure project   # this drives the port build

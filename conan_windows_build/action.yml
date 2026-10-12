@@ -115,8 +115,8 @@ runs:
           VCPKG_BINARY_SOURCES: "clear;http,${{ inputs.vcpkg-artifactory-url }}/{name}/{version}/{triplet}/{sha},readwrite,Authorization: Bearer ${{ inputs.vcpkg-artifactory-token }}" 
           VCPKG_FEATURE_FLAGS: "versions,registries"
         run: |
-          cd "${{ github.workspace }}"
-          vcpkg --debug install             
+          $portsDir = Join-Path "${{ github.workspace }}" "ports"
+          vcpkg --debug install --overlay-ports=$portsDir         
 
       - name: Configure project   # this drives the port build
         shell: pwsh

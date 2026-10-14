@@ -31,7 +31,9 @@ set(SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/../../external/${PORT_NAME}")
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
-        OPTIONS -DMV_INSTALL_DIR=${CURRENT_PACKAGES_DIR}
+        OPTIONS 
+          -DMV_INSTALL_DIR=${CURRENT_PACKAGES_DIR}
+          -DFETCHCONTENT_FULLY_DISCONNECTED=OFF  # Permit use of FetchContent/CPM in the repo
 )
 
 vcpkg_cmake_install()

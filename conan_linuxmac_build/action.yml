@@ -78,7 +78,7 @@ runs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake ninja-build pkg-config
-          sudo cp lkebartifactory.nl.crt /usr/local/share/ca-certificates/
+          sudo cp ${{ github.action_path }}/lkebartifactory.nl.crt /usr/local/share/ca-certificates/
           sudo update-ca-certificates 
 
       # Process mv_deps.toml if present to produce 

@@ -96,17 +96,6 @@ runs:
         CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
         CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
 
-# Continue on error is to suppress grep 
-# exit code when compatibility is not present
-    - name: Make compatibility profile (if needed) 
-      continue-on-error: true
-      run: |
-        export CONAN_USER_HOME=`pwd`/_conan
-        python github-${{ github.action_path }}/python/get_compatibility_list.py ${{ inputs.conan-build-os }} ${{ inputs.conan-compiler }} ${{ inputs.conan-compiler-version }}
-        compatibility_found=`conan profile list | (grep -E 'compatibility' || true)`
-        echo "compatibility_found=$compatibility_found" >> $GITHUB_ENV
-      shell: bash
-
     - name: Setup profiles 
       run: |   
         export CONAN_USER_HOME=`pwd`/_conan

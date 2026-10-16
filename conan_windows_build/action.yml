@@ -144,13 +144,6 @@ runs:
       run: |
         which sentry-cli || true
         sentry-cli --version
-
-    - name: Checkout the source
-      if: ${{ inputs.sentry-upload }}
-      uses: actions/checkout@v7.0.1
-      with:
-        repository: ${{ github.action_repository }}
-        ref: ${{ github.action_ref }}
         
     - name: Upload matching PDBs to Sentry
       if: ${{ inputs.sentry-upload }}

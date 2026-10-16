@@ -99,8 +99,8 @@ runs:
     - name: Get compatibility logic
       uses: actions/checkout@v7.0.1
       with:
-        repository: ManiVaultStudio/github-actions
-        ref: compatibility
+        repository: ${{ github.action_repository }}
+        ref: ${{ github.action_ref }}
         path: github-actions
         fetch-depth: 1
 

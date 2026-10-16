@@ -23,17 +23,14 @@ inputs:
   conan-build-os:
     description: "Linux or Macos"
     required: true
+  vcpkg-artifactory-url:
+    description: "pass secrets.VCPKG_ARTIFACTORY_URL"
+    required: true
+  vcpkg-artifactory-token:
+    description: "pass secrets.VCPKG_ARTIFACTORY_TOKEN"
+    required: true
   build-arch:
     description: "either x86_64 or armv8 (for macos)"
-    required: true
-  conan-user:
-    description: "pass secrets.LKEB_ARTIFACTORY_USER"
-    required: true
-  conan-password:
-    description: "pass secrets.LKEB_ARTIFACTORY_PASSWORD"
-    required: true
-  conan-pem:
-    description: "pass secrets.LKEB_CERT_CHAIN"
     required: true
 
 # Ubuntu 24.04 ships with libicu 74, see https://launchpad.net/ubuntu/+source/icu
@@ -41,119 +38,97 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install conan & build configuration
-      run: |
-        if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-          sudo apt install -y ninja-build
-          sudo apt install -y libtbb-dev
-          sudo apt install -y wget
+      - name: Clone vcpkg
+        uses: actions/checkout@v6
+        with:
+          repository: microsoft/vcpkg
+          path: .vcpkg
 
-          echo "Downloading libicu73..."
-          sudo wget -q https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-Ubuntu22.04-x64.tgz
-          sudo tar -xf icu4c-73_2-Ubuntu22.04-x64.tgz
-          sudo find ./icu/usr/local/lib/ -name "*.73*" -print0 | sudo xargs -0 cp -r -t /usr/lib/x86_64-linux-gnu/
-          sudo rm -rf ./icu/
-          sudo rm -rf icu4c-73_2-Ubuntu22.04-x64.tgz
-        fi
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
 
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-          brew install libomp
-          export HOMEBREW_NO_AUTO_UPDATE=1
-        fi
-        
-        pip install conan~=1.66.0
-        pip install gitpython
-        pip install -v git+ssh://git@github.com/ManiVaultStudio/rulessupport.git@master
+      - name: Bootstrap vcpkg and python
+        shell: pwsh
+        run: | 
+          $vcpkgRoot = Join-Path "${{ github.workspace }}" ".vcpkg"
+          echo "VCPKG_ROOT=$vcpkgRoot" >> $env:GITHUB_ENV
+          if ($env:RUNNER_OS -eq "Windows") {
+            & "${{ github.workspace }}\.vcpkg\bootstrap-vcpkg.bat" -disableMetrics
+            $python = Join-Path $env:pythonLocation "python.exe"
+          } else {
+            & "${{ github.workspace }}\.vcpkg\bootstrap-vcpkg.sh" -disableMetrics
+            $python = Join-Path $env:pythonLocation "bin" "python3"
+          }
+          Add-Content -Path $env:GITHUB_ENV -Value "PYTHON3_EXECUTABLE=$python"
+          echo ${{ github.workspace }}\.vcpkg\ >> $GITHUB_PATH
+          echo "VCPKG_FEATURE_FLAGS=registries" >> $env:GITHUB_ENV
 
-        export CONAN_CMAKE_PROGRAM=`which cmake`
-        echo CMake version:
-        cmake --version
-        mkdir `pwd`/_conan
-        export CONAN_USER_HOME=`pwd`/_conan
-        conan user
 
-        echo Extend conan cacert.pem
-        conanhome=`conan config home`
-        echo -e "$CONAN_PEM" >> $conanhome/cacert.pem
+      - name: Install required Python packages
+        shell: pwsh
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install requests packaging colorama
 
-      shell: bash
-      env:
-        CONAN_PEM: ${{ inputs.conan-pem }}
+      - name: Install Linux build dependencies and add pem chain to cert store
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build pkg-config
+          sudo cp lkebartifactory.nl.crt /usr/local/share/ca-certificates/
+          sudo update-ca-certificates 
 
-    - name: Setup conan
-      run: |
-        export CONAN_USER_HOME=`pwd`/_conan
-        echo Add LKEB artifactory as remote
-        conan remote add $CONAN_LKEB_ARTIFACTORY $CONAN_UPLOAD
-        echo Add upload user
-        conan user -r $CONAN_LKEB_ARTIFACTORY -p ${{ inputs.conan-password }} ${{ inputs.conan-user }}
-      shell: bash
-      env:
-        BUILD_SHARED: True
-        CONAN_UPLOAD: https://lkeb-artifactory.lumc.nl/artifactory/api/conan/conan-local
-        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
+      # Process mv_deps.toml if present to produce 
+      # an overlay for the ManiVault dependencies
+      - name: Create overlay from mv_deps.toml
+        shell: pwsh
+        run: |
+          if (Test-Path -path ./mv_deps.toml) {
+            python3 ${{ github.action_path }}/../python/create_overlay.py
+            ls -R ./ports
+            ls -R ./external
+          }
 
-    - name: Get compatibility logic
-      uses: actions/checkout@v6
-      with:
-        repository: ManiVaultStudio/github-actions
-        ref: compatibility
-        path: github-actions
-        fetch-depth: 1
+      - name: Configure project   # this drives the port build
+        shell: pwsh
+        env:
+          VCPKG_KEEP_ENV_VARS: "PYTHON3_EXECUTABLE;SEVEN_ZIP_EXECUTABLE"
+          VCPKG_BINARY_SOURCES: "clear;http,${{ inputs.vcpkg-artifactory-url }}/{name}/{version}/{triplet}/{sha},readwrite,Authorization: Bearer ${{ inputs.vcpkg-artifactory-token }}" 
+          VCPKG_FEATURE_FLAGS: "versions,registries"
+        run: |
+          $sevenZip = (Get-Command 7z).Source
+          echo "7z at $sevenZip"
+          $env:SEVEN_ZIP_EXECUTABLE = $sevenZip
+          $preset = if ($IsWindows) { "vcpkg-windows" }
+            elseif ($IsLinux) { "vcpkg-linux" }
+            else { "vcpkg-macos" }
+          $buildDir = Join-Path "${{ github.workspace }}" "build"
+          $installDir = Join-Path $buildDir "install"
+          cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release
+      - name: Upload vcpkg install log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcpkg-manifest-install-log
+          path: | 
+            D:/a/core/core/build/vcpkg-manifest-install.log
 
-# Continue on error is to suppress grep 
-# exit code when compatibility is not present
-    - name: Make compatibility profile (if needed) 
-      continue-on-error: true
-      run: |
-        export CONAN_USER_HOME=`pwd`/_conan
-        python github-actions/python/get_compatibility_list.py ${{ inputs.conan-build-os }} ${{ inputs.conan-compiler }} ${{ inputs.conan-compiler-version }}
-        compatibility_found=`conan profile list | (grep -E 'compatibility' || true)`
-        echo "compatibility_found=$compatibility_found" >> $GITHUB_ENV
-      shell: bash
 
-    - name: Setup profiles 
-      run: |   
-        export CONAN_USER_HOME=`pwd`/_conan
-        export CONAN_PACKAGE_NAME=`conan inspect --raw name conanfile.py`
-        conan profile new action_build
-        conan profile update settings.os=${{ inputs.conan-build-os }} action_build
-        conan profile update settings.os_build=${{ inputs.conan-build-os }} action_build
-        conan profile update settings.arch=${{ inputs.build-arch }} action_build
-        conan profile update settings.compiler=${{ inputs.conan-compiler }} action_build
-        conan profile update settings.compiler.version=${{ inputs.conan-compiler-version }} action_build
-        conan profile update settings.compiler.libcxx=${{ inputs.conan-libcxx-version}} action_build
-        conan profile update settings.build_type=${{ inputs.conan-build-type }} action_build
-        conan profile update options.shared=True action_build
-        conan profile show action_build
+# Set-Location "$env:TEST_WORKDIR"
+      - name: Build project
+        shell: pwsh
+        env:
+          VCPKG_BINARY_SOURCES: "clear;http,${{ inputs.vcpkg-artifactory-url }}/{name}/{version}/{triplet}/{sha},readwrite,Authorization: Bearer ${{ inputs.vcpkg-artifactory-token }}" 
+          VCPKG_FEATURE_FLAGS: "versions,registries"
+        run: | 
+          cmake --build .\build --config Release
 
-        mkdir _build
-
-      shell: bash
-      env:
-        BUILD_SHARED: True
-        CC: ${{inputs.conan-cc}}
-        CXX: ${{inputs.conan-cxx}}
-
-    - name: Build & upload to artifactory with conan
-      run: |
-        export CONAN_USER_HOME=`pwd`/_conan
-        if [ -d "./external/conan-recipes" ]; then conan export ./external/conan-recipes/bundle_package bundleutils/0.1@lkeb/stable; fi
-        
-        if [[ $compatibility_found == compatibility ]]; then
-          echo "Configuration for profile compatibility"
-          cat `conan config home`/profiles/compatibility
-          conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build -pr compatibility
-        else
-          conan create . lkeb/stable  -pr:b=action_build -pr:h=action_build
-        fi
-        echo "Display package recipes"
-        conan search $CONAN_PACKAGE_NAME
-        export CONAN_PACKAGE_NAME=`conan inspect --raw name conanfile.py`
-        export CONAN_PACKAGE_VERSION=`conan inspect --raw version conanfile.py`
-        echo "About to upload $CONAN_PACKAGE_NAME/$CONAN_PACKAGE_VERSION to $CONAN_LKEB_ARTIFACTORY"
-        conan upload --all --force --confirm -r $CONAN_LKEB_ARTIFACTORY $CONAN_PACKAGE_NAME/*
-
-      shell: bash
-      env:
-        CONAN_LKEB_ARTIFACTORY: lkeb-artifactory
+      - name: Upload raw log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiler-logs
+          path: build_log.txt   

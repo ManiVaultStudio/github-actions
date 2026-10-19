@@ -44,6 +44,7 @@ runs:
         with:
           repository: microsoft/vcpkg
           path: .vcpkg
+          fetch-depth: 0
 
       - name: Setup python
         uses: actions/setup-python@v6

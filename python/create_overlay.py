@@ -57,7 +57,7 @@ for key, config in deps.items():
     if match_branch:
         # Check if target branch exists on remote repository
         ls_remote = subprocess.run(
-            ["git", "ls-remote", "--heads", f"https://github.com/{repo}.git", consumer_branch],
+            ["git", "ls-remote", "--branches", f"https://github.com/{repo}.git", consumer_branch],
             capture_output=True, text=True
         )
         if ls_remote.returncode == 0 and consumer_branch in ls_remote.stdout:

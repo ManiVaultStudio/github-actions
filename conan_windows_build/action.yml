@@ -102,6 +102,9 @@ runs:
             ls -R ./external
           }
 
+      # TODO inject the dependencies from mv_deps.toml into the vcpkg.json manifest
+      # The vcpkg.json may have to be created if there are no other dependencies
+
       # vcpkg automatically resolves ports under ./ports based on vcpkg-configuration.json
       #- name: Run vcpkg install
       #  shell: pwsh

@@ -98,9 +98,10 @@ runs:
         run: |
           if (Test-Path -path ./mv_deps.toml) {
             python3 ${{ github.action_path }}/../python/create_overlay.py
-            ls -R ./ports
-            ls -R ./external
           }
+      #      ls -R ./ports
+      #      ls -R ./external
+      #    }
 
       # TODO inject the dependencies from mv_deps.toml into the vcpkg.json manifest
       # The vcpkg.json may have to be created if there are no other dependencies

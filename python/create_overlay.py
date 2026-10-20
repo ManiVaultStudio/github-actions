@@ -90,7 +90,6 @@ for key, config in deps.items():
     # We inject the branch sh to ensure a unique ABI has on branch update
     with open(target_portfile, "w", encoding="utf-8") as f:
         f.write(template_port_file + f"\n#Git SHA: {branch_sha}")
-        f.write()
 
     #shutil.copy(template_port, target_portfile)
     print(f"Injected portfile for {package_name} -> {target_portfile}")

@@ -54,15 +54,18 @@ for key, config in deps.items():
 
     # Determine target branch
     target_branch = ref
+    branch_sha = ""
     if match_branch:
         # Check if target branch exists on remote repository
         ls_remote = subprocess.run(
-            ["git", "ls-remote", "--branches", f"https://github.com/{repo}.git", consumer_branch],
+            ["git", "ls-remote", f"https://github.com/{repo}.git", consumer_branch],
             capture_output=True, text=True
         )
         if ls_remote.returncode == 0 and consumer_branch in ls_remote.stdout:
             target_branch = consumer_branch
             print(f"[{package_name}] Branch match found! Using: {target_branch}")
+            branchinfo = ls_remote.stdout.strip('\n').split('\t')
+            branch_sha=branchinfo[0]
         else:
             print(f"[{package_name}] Branch '{consumer_branch}' not found on remote. Falling back to: {target_branch}")
 
@@ -84,8 +87,10 @@ for key, config in deps.items():
     # 2. Inject overlay portfile into ports/<package_name>/portfile.cmake
     port_dir.mkdir(parents=True, exist_ok=True)
     target_portfile = port_dir / "portfile.cmake"
+    # We inject the branch sh to ensure a unique ABI has on branch update
     with open(target_portfile, "w", encoding="utf-8") as f:
-        f.write(template_port_file)
+        f.write(template_port_file + f"\n#Git SHA: {branch_sha}")
+        f.write()
 
     #shutil.copy(template_port, target_portfile)
     print(f"Injected portfile for {package_name} -> {target_portfile}")

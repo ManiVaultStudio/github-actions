@@ -122,7 +122,7 @@ runs:
             else { "vcpkg-macos" }
           $buildDir = Join-Path "${{ github.workspace }}" "build"
           $installDir = Join-Path $buildDir "install"
-          cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release
+          cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=${{ github.action_path }}/../CMakeSupport/gha_vcpkg_toolchain.cmake
 
       - name: Upload vcpkg install log on failure
         if: failure()

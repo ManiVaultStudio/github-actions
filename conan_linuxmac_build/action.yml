@@ -130,6 +130,7 @@ runs:
           $toolchainFile = Join-Path "${{ github.action_path }}" "/../CMakeSupport/gha_vcpkg_toolchain.cmake"
           $setOpenMP = if ($IsMacOS) {"-DOpenMP_ROOT='$(brew --prefix libomp)'"}
             else {""}
+          echo "Additional OpenMP setting: $setOpenMP"
           cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PROJECT_INCLUDE=$toolchainFile" "$setOpenMP"
 
       - name: Upload vcpkg install log on failure

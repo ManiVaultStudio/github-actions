@@ -128,10 +128,27 @@ runs:
           $buildDir = Join-Path "${{ github.workspace }}" "build"
           $installDir = Join-Path $buildDir "install"
           $toolchainFile = Join-Path "${{ github.action_path }}" "/../CMakeSupport/gha_vcpkg_toolchain.cmake"
-          $setOpenMP = if ($IsMacOS) {"-DOpenMP_ROOT='$(brew --prefix libomp)'"}
-            else {""}
-          echo "Additional OpenMP setting: $setOpenMP"
-          cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PROJECT_INCLUDE=$toolchainFile" "$setOpenMP"
+          $cmakeArgs = @(
+            "--preset", $preset, "-S", ".", "-B", $buildDir,
+            "-DMV_INSTALL_DIR=$installDir",
+            "-DCMAKE_BUILD_TYPE=Release",
+            "-DCMAKE_PROJECT_INCLUDE=$toolchainFile"
+          )
+          # Add OpenMP to the cmake args on macos
+          if ($IsMacOS) {
+            $omp = (brew --prefix libomp).Trim()
+            $cmakeArgs += @(
+              "-DOpenMP_ROOT=$omp",
+              "-DOpenMP_C_FLAGS=-Xclang -fopenmp -I$omp/include",
+              "-DOpenMP_CXX_FLAGS=-Xclang -fopenmp -I$omp/include",
+              "-DOpenMP_C_LIB_NAMES=libomp",
+              "-DOpenMP_CXX_LIB_NAMES=libomp",
+              "-DOpenMP_libomp_LIBRARY=$omp/lib/libomp.dylib"
+            )
+          }
+
+          echo "cmake $cmakeArgs"
+          cmake @cmakeArgs
 
       - name: Upload vcpkg install log on failure
         if: failure()

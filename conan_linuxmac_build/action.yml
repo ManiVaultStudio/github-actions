@@ -107,6 +107,11 @@ runs:
             libgl1-mesa-dev libglu1-mesa-dev libegl1-mesa-dev \
             libxrandr-dev libxxf86vm-dev autoconf automake libtool pkg-config
 
+      - name: Install libomp for macos
+        shell: bash
+        if: runner.os == 'macOS'
+        run: brew install libomp
+
       - name: Configure project   # this drives the port build
         shell: pwsh
         env:
@@ -123,7 +128,9 @@ runs:
           $buildDir = Join-Path "${{ github.workspace }}" "build"
           $installDir = Join-Path $buildDir "install"
           $toolchainFile = Join-Path "${{ github.action_path }}" "/../CMakeSupport/gha_vcpkg_toolchain.cmake"
-          cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PROJECT_INCLUDE=$toolchainFile"
+          $setOpenMP = if ($IsMacOS) {"-DOpenMP_ROOT='$(brew --prefix libomp)'"}
+            else {""}
+          cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PROJECT_INCLUDE=$toolchainFile" "$setOpenMP"
 
       - name: Upload vcpkg install log on failure
         if: failure()

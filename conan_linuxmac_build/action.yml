@@ -146,8 +146,6 @@ runs:
           #     "-DOpenMP_libomp_LIBRARY=$omp/lib/libomp.dylib"
           #   )
           # }
-          list(APPEND VCPKG_CMAKE_CONFIGURE_OPTIONS
-          "-DOpenMP_ROOT=${BREW_PREFIX}/opt/libomp"
 
           echo "cmake $cmakeArgs"
           cmake @cmakeArgs

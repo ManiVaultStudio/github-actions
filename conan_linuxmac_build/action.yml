@@ -45,10 +45,10 @@ runs:
           $configFile = Join-Path "${{ github.workspace }}" "vcpkg-configuration.json"
           $defaultPresetsFile = Join-Path "${{ github.action_path }}" "/../vcpkg_setup/CMakePresets.json"
           $defaultConfigFile = Join-Path "${{ github.action_path }}" "/../vcpkg_setup/vcpkg-configuration.json"
-          if (-not (Test_Path $presetsFile)) {
+          if (-not (Test-Path $presetsFile)) {
             Copy-Item -Path $defaultPresetsFile -Destination "${{ github.workspace }}"
           }
-          if (-not (Test_Path $$configFile)) {
+          if (-not (Test-Path $$configFile)) {
             Copy-Item -Path $defaultConfigFile -Destination "${{ github.workspace }}"
           }
 

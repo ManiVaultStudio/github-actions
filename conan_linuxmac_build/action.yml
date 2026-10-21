@@ -135,17 +135,19 @@ runs:
             "-DCMAKE_PROJECT_INCLUDE=$toolchainFile"
           )
           # Add OpenMP to the cmake args on macos
-          if ($IsMacOS) {
-            $omp = (brew --prefix libomp).Trim()
-            $cmakeArgs += @(
-              "-DOpenMP_ROOT=$omp",
-              "-DOpenMP_C_FLAGS=-Xclang -fopenmp -I$omp/include",
-              "-DOpenMP_CXX_FLAGS=-Xclang -fopenmp -I$omp/include",
-              "-DOpenMP_C_LIB_NAMES=libomp",
-              "-DOpenMP_CXX_LIB_NAMES=libomp",
-              "-DOpenMP_libomp_LIBRARY=$omp/lib/libomp.dylib"
-            )
-          }
+          # if ($IsMacOS) {
+          #   $omp = (brew --prefix libomp).Trim()
+          #   $cmakeArgs += @(
+          #     "-DOpenMP_ROOT=$omp",
+          #     "-DOpenMP_C_FLAGS=-Xclang -fopenmp -I$omp/include",
+          #     "-DOpenMP_CXX_FLAGS=-Xclang -fopenmp -I$omp/include",
+          #     "-DOpenMP_C_LIB_NAMES=libomp",
+          #     "-DOpenMP_CXX_LIB_NAMES=libomp",
+          #     "-DOpenMP_libomp_LIBRARY=$omp/lib/libomp.dylib"
+          #   )
+          # }
+          list(APPEND VCPKG_CMAKE_CONFIGURE_OPTIONS
+          "-DOpenMP_ROOT=${BREW_PREFIX}/opt/libomp"
 
           echo "cmake $cmakeArgs"
           cmake @cmakeArgs

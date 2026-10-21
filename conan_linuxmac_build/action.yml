@@ -133,6 +133,14 @@ runs:
           path: | 
             .vcpkg/buildtrees/**/install-*-out.log
 
+      - name: Upload vcpkg config log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcpkg upload logs on configerror
+          path: | 
+            .vcpkg/buildtrees/**/config-*.log
+
 
 # Set-Location "$env:TEST_WORKDIR"
       - name: Build project

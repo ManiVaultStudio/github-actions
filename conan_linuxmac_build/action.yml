@@ -88,11 +88,11 @@ runs:
         run: |
           if (Test-Path -path ./mv_deps.toml) {
             python3 ${{ github.action_path }}/../python/create_overlay.py
-            ls -R ./ports
-            ls -R ./external
           }
+      #    ls -R ./ports
+      #    ls -R ./external
 
-      - name: Install Qt build dependencies (Linux)
+      - name: Install build dependencies (Linux)
         shell: bash
         if: startsWith(matrix.os, 'ubuntu')
         run: |
@@ -123,7 +123,7 @@ runs:
           $buildDir = Join-Path "${{ github.workspace }}" "build"
           $installDir = Join-Path $buildDir "install"
           $toolchainFile = Join-Path "${{ github.action_path }}" "/../CMakeSupport/gha_vcpkg_toolchain.cmake"
-          cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$toolchainFile"
+          cmake --preset $preset -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PROJECT_INCLUDEE=$toolchainFile"
 
       - name: Upload vcpkg install log on failure
         if: failure()

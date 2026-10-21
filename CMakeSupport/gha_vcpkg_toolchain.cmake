@@ -1,7 +1,7 @@
 # Designed to be passed as VCPKG_CHAINLOAD_TOOLCHAIN_FILE to link the 
 # packaged cmake support utils to the consumer
 
-set(_VCPKG_INSTALLED_DIR "${CMAKE_LIST_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}")
+set(_VCPKG_INSTALLED_DIR "${CMAKE_CURRENT_LIST_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}")
 list(APPEND CMAKE_PREFIX_PATH "${_VCPKG_INSTALLED_DIR}")
 
 set(temp_prefix_path ${CMAKE_PREFIX_PATH})

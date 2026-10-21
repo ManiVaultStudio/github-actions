@@ -38,6 +38,20 @@ inputs:
 runs:
   using: "composite"
   steps:
+      - name: Setup default vcpkg settings
+        shell: pwsh
+        run: |
+          $presetsFile = Join-Path "${{ github.workspace }}" "CMakePresets.json"
+          $configFile = Join-Path "${{ github.workspace }}" "vcpkg-configuration.json"
+          $defaultPresetsFile = Join-Path "${{ github.action_path }}" "/../vcpkg_setup/CMakePresets.json"
+          $defaultConfigFile = Join-Path "${{ github.action_path }}" "/../vcpkg_setup/vcpkg-configuration.json"
+          if (-not (Test_Path $presetsFile)) {
+            Copy-Item -Path $defaultPresetsFile -Destination "${{ github.workspace }}"
+          }
+          if (-not (Test_Path $$configFile)) {
+            Copy-Item -Path $defaultConfigFile -Destination "${{ github.workspace }}"
+          }
+
       - name: Clone vcpkg
         uses: actions/checkout@v6
         with:

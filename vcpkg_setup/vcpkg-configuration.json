@@ -10,7 +10,7 @@
       "kind": "git",
       "repository": "https://github.com/ManiVaultStudio/vcpkg-registry-external",
       "baseline": "3015b7ee0a816e6d45ef6bcfb1ba7f180bc86488",
-      "packages": ["biovault-bfloat16", "qt6"]
+      "packages": ["biovault-bfloat16", "qt6", "freeimage"]
     }
   ],
   "overlay-ports": [

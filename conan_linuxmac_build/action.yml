@@ -101,7 +101,8 @@ runs:
         shell: pwsh
         run: |
           if (Test-Path -path ./mv_deps.toml) {
-            python3 ${{ github.action_path }}/../python/create_overlay.py
+            $toolchainFile = Join-Path "${{ github.action_path }}" "/../CMakeSupport/gha_vcpkg_toolchain.cmake"
+            python3 ${{ github.action_path }}/../python/create_overlay.py --toolchain $toolchainFile
           }
       #    ls -R ./ports
       #    ls -R ./external

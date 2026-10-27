@@ -8,29 +8,29 @@ import argparse
 
 def get_portfile(toolchain):
     return f"""
-  # ports/template/portfile.cmake
-  # Automatically generated/copied overlay portfile
+# ports/template/portfile.cmake
+# Automatically generated/copied overlay portfile
 
-  # CMAKE_CURRENT_LIST_DIR is ports/<package_name>
-  # Resolves to external/<package_name>
-  get_filename_component(PORT_NAME "${CMAKE_CURRENT_LIST_DIR}" NAME)
-  set(SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/../../external/${PORT_NAME}")
+# CMAKE_CURRENT_LIST_DIR is ports/<package_name>
+# Resolves to external/<package_name>
+get_filename_component(PORT_NAME "${{CMAKE_CURRENT_LIST_DIR}}" NAME)
+set(SOURCE_PATH "${{CMAKE_CURRENT_LIST_DIR}}/../../external/${{PORT_NAME}}")
 
-  vcpkg_cmake_configure(
-      SOURCE_PATH "${SOURCE_PATH}"
-          OPTIONS 
-            -DMV_INSTALL_DIR=${CURRENT_PACKAGES_DIR}
-            -DFETCHCONTENT_FULLY_DISCONNECTED=OFF  # Permit use of FetchContent/CPM in the repo
-            -DCMAKE_PROJECT_INCLUDE={toolchain}
-  )
+vcpkg_cmake_configure(
+    SOURCE_PATH "${{SOURCE_PATH}}"
+        OPTIONS 
+          -DMV_INSTALL_DIR=${{CURRENT_PACKAGES_DIR}}
+          -DFETCHCONTENT_FULLY_DISCONNECTED=OFF  # Permit use of FetchContent/CPM in the repo
+          -DCMAKE_PROJECT_INCLUDE={toolchain}
+)
 
-  vcpkg_cmake_install()
-  vcpkg_cmake_config_fixup(PACKAGE_NAME "${PORT_NAME}")
+vcpkg_cmake_install()
+vcpkg_cmake_config_fixup(PACKAGE_NAME "${{PORT_NAME}}")
 
-  if(EXISTS "${SOURCE_PATH}/LICENSE")
-      vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
-  endif()
-  """
+if(EXISTS "${{SOURCE_PATH}}/LICENSE")
+    vcpkg_install_copyright(FILE_LIST "${{SOURCE_PATH}}/LICENSE")
+endif()
+"""
 
 
 def main(args):

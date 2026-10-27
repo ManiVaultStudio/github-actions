@@ -6,8 +6,11 @@ from pathlib import Path
 import argparse
 
 
-def get_portfile(toolchain):
-    path = Path(toolchain)
+def get_portfile(toolchain: str):
+    project_include = ""
+    if not toolchain == "":
+      path = Path(toolchain)
+      project_include = f"-DCMAKE_PROJECT_INCLUDE={path.as_posix()}"
     return f"""
 # ports/template/portfile.cmake
 # Automatically generated/copied overlay portfile
@@ -22,7 +25,7 @@ vcpkg_cmake_configure(
         OPTIONS 
           -DMV_INSTALL_DIR=${{CURRENT_PACKAGES_DIR}}
           -DFETCHCONTENT_FULLY_DISCONNECTED=OFF  # Permit use of FetchContent/CPM in the repo
-          -DCMAKE_PROJECT_INCLUDE={path.as_posix()}
+          {project_include}
 )
 
 vcpkg_cmake_install()

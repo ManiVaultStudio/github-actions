@@ -114,6 +114,7 @@ def main(args):
         toolchain = ""
         if package_name != "mv-core":
             toolchain = args.toolchain
+        print(f"Adding toolchain to the portfile as cmake include: {toolchain}")
         with open(target_portfile, "w", encoding="utf-8") as f:
             f.write(get_portfile(toolchain) + f"\n#Git SHA: {branch_sha}")
 

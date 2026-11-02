@@ -9,7 +9,6 @@ inputs:
        - windows_2022 
        - linux_gcc11 
        - linux_gcc13 
-       - macos_code14 [x86]
        - macos_code15 [arm]
        - macos_code16 [arm]
        

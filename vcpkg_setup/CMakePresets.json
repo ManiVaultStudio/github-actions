@@ -11,23 +11,74 @@
       }
     },
 		{
-			"name": "vcpkg-windows",
+      "name": "windows-msvc2019-release",
+      "displayName": "Windows MSVC 2019 Release (x64 MD)",
       "inherits": "vcpkg-base",
+      "generator": "Visual Studio 16 2019",
+      "architecture": "x64",
+			"cacheVariables": {
+				"VCPKG_TARGET_TRIPLET": "x64-windows-release",
+				"CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL"
+			}
+    },
+		{
+      "name": "windows-msvc2022-release",
+      "displayName": "Windows MSVC 2022 Release (x64 MD)",
+      "inherits": "vcpkg-base",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
 			"cacheVariables": {
 				"VCPKG_TARGET_TRIPLET": "x64-windows-release",
 				"CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL"
 			}
     },
     {
-      "name": "vcpkg-linux",
+      "name": "linux-gcc11-release",
+      "displayName": "Linux GCC 11 Release (x86_64)",
       "inherits": "vcpkg-base",
+      "generator": "Ninja",
+      "architecture": "x64",
       "cacheVariables": {
           "VCPKG_TARGET_TRIPLET": "x64-linux-release"
+      },
+      "environment": {
+        "CC": "gcc-11",
+        "CXX": "g++-11"
       }
     },
     {
-      "name": "vcpkg-macos",
+      "name": "linux-gcc13-release",
+      "displayName": "Linux GCC 13 Release (x86_64)",
       "inherits": "vcpkg-base",
+      "generator": "Ninja",
+      "architecture": "x64",
+      "cacheVariables": {
+          "VCPKG_TARGET_TRIPLET": "x64-linux-release"
+      },
+      "environment": {
+        "CC": "gcc-13",
+        "CXX": "g++-13"
+      }
+    },
+    {
+      "name": "macos-xcode15-release",
+      "displayName": "macOS Xcode 15 Release (arm64)",
+      "inherits": "vcpkg-base",
+      "generator": "Ninja",
+      "architecture": "arm64",
+      "cacheVariables": {
+          "VCPKG_TARGET_TRIPLET": "arm64-osx-release"
+      },
+      "environment": {
+        "OpenMP_ROOT": "/opt/homebrew/opt/libomp"
+      }
+    },
+    {
+      "name": "macos-xcode16-release",
+      "displayName": "macOS Xcode 16 Release (arm64)",
+      "inherits": "vcpkg-base",
+      "generator": "Ninja",
+      "architecture": "arm64",
       "cacheVariables": {
           "VCPKG_TARGET_TRIPLET": "arm64-osx-release"
       },

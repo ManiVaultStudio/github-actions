@@ -2,9 +2,6 @@
     {
         "name": "Windows-msvc2019",
         "os": "windows-2019",
-        "compiler": "msvc-2019",
-        "build-cversion": "16",
-        "build-runtime": "MD",
-        "build-config": "Release"
+        "preset": " windows-msvc2019-release"
     }
 ]

@@ -1,13 +1,8 @@
 [ 
     {
-        "name": "Macos_xcode14.3",
+        "name": "Macos_xcode14",
         "os": "macos-13",
-        "build-compiler": "apple-clang",
-        "build-cversion": "14",
-        "build-config": "Release",
-        "build-os": "Macos",
-        "build-xcode-version": "14.3",
-        "build-libcxx": "libc++",
-        "build-arch": "x86_64"
+        "preset": "macos-xcode16-release",
+        "xcode": "14.3"
     }
 ]

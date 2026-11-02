@@ -2,13 +2,6 @@
     {
         "name": "Linux_gcc11",
         "os": "ubuntu-22.04",
-        "build-cc": "gcc",
-        "build-cxx": "g++",
-        "build-compiler": "gcc",
-        "build-cversion": "11",
-        "build-config": "Release",
-        "build-os": "Linux",
-        "build-libcxx": "libstdc++11",
-        "build-arch": "x86_64"
+        "preset": "linux-gcc11-release"
     }
 ]

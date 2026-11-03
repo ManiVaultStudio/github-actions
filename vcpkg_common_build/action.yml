@@ -143,7 +143,7 @@ runs:
           $buildDir = Join-Path "${{ github.workspace }}" "build"
           $installDir = Join-Path $buildDir "install"
           echo "Processing $env:GITHUB_REPOSITORY"
-          if ($env:GITHUB_REPOSITORY -neq "ManiVaultStudio/core") {
+          if ($env:GITHUB_REPOSITORY -ne "ManiVaultStudio/core") {
             $toolchainFile = Join-Path "${{ github.action_path }}" "/../CMakeSupport/gha_vcpkg_toolchain.cmake"
             $projectInclude = "-DCMAKE_PROJECT_INCLUDE=$toolchainFile"
           } else {

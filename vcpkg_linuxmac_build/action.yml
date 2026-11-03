@@ -121,7 +121,7 @@ runs:
           $installDir = Join-Path $buildDir "install"
           $toolchainFile = Join-Path "${{ github.action_path }}" "/../CMakeSupport/gha_vcpkg_toolchain.cmake"
           $cmakeArgs = @(
-            "--preset", ${{ inputs.vcpkg-preset }}, "-S", ".", "-B", $buildDir,
+            "--preset", "${{ inputs.vcpkg-preset }}", "-S", ".", "-B", $buildDir,
             "-DMV_INSTALL_DIR=$installDir",
             "-DCMAKE_BUILD_TYPE=Release",
             "-DCMAKE_PROJECT_INCLUDE=$toolchainFile"

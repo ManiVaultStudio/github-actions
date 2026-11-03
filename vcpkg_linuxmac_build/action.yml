@@ -2,23 +2,8 @@ name: "Common cmake steps"
 description: "Encapsulate cmake composite run steps that are common for Linux and Mac"
 # reference https://docs.github.com/en/free-pro-team@latest/actions/creating-actions/creating-a-composite-run-steps-action
 inputs:
-  conan-compiler:
-    description: "gcc apple-clang"
-    required: true
-  conan-cc:
-    description: "gcc clang"
-    required: true
-  conan-cxx:
-    description: "g++ clang++"
-    required: true
-  conan-compiler-version:
-    description: "A number [gcc: 8 9 10 11 12 14] [clang: 39 40 50 60 7 8 9 10 11 12 13 14 15 16 17 18 19 20] [10.0]"
-    required: true
-  conan-libcxx-version:
-    description: "Linux: libstdc++ or Macos: libc++ "
-    required: true
-  conan-build-os:
-    description: "Linux or Macos"
+  vcpkg-preset:
+    description: "One of the linux/macos preset names definded in CMakePresets.json"
     required: true
   vcpkg-artifactory-url:
     description: "pass secrets.VCPKG_ARTIFACTORY_URL"
@@ -26,9 +11,7 @@ inputs:
   vcpkg-artifactory-token:
     description: "pass secrets.VCPKG_ARTIFACTORY_TOKEN"
     required: true
-  build-arch:
-    description: "either x86_64 or armv8 (for macos)"
-    required: true
+
 
 # Ubuntu 24.04 ships with libicu 74, see https://launchpad.net/ubuntu/+source/icu
 # but we some dependencies (qt 6.8) expect libicu 73, so we download is manually
@@ -134,14 +117,11 @@ runs:
           $sevenZip = (Get-Command 7z).Source
           echo "7z at $sevenZip"
           $env:SEVEN_ZIP_EXECUTABLE = $sevenZip
-          $preset = if ($IsWindows) { "vcpkg-windows" }
-            elseif ($IsLinux) { "vcpkg-linux" }
-            else { "vcpkg-macos" }
           $buildDir = Join-Path "${{ github.workspace }}" "build"
           $installDir = Join-Path $buildDir "install"
           $toolchainFile = Join-Path "${{ github.action_path }}" "/../CMakeSupport/gha_vcpkg_toolchain.cmake"
           $cmakeArgs = @(
-            "--preset", $preset, "-S", ".", "-B", $buildDir,
+            "--preset", ${{ inputs.vcpkg-preset }}, "-S", ".", "-B", $buildDir,
             "-DMV_INSTALL_DIR=$installDir",
             "-DCMAKE_BUILD_TYPE=Release",
             "-DCMAKE_PROJECT_INCLUDE=$toolchainFile"

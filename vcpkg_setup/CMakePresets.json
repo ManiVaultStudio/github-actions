@@ -37,7 +37,6 @@
       "displayName": "Linux GCC 11 Release (x86_64)",
       "inherits": "vcpkg-base",
       "generator": "Ninja",
-      "architecture": "x64",
       "cacheVariables": {
           "VCPKG_TARGET_TRIPLET": "x64-linux-release"
       },
@@ -51,7 +50,6 @@
       "displayName": "Linux GCC 13 Release (x86_64)",
       "inherits": "vcpkg-base",
       "generator": "Ninja",
-      "architecture": "x64",
       "cacheVariables": {
           "VCPKG_TARGET_TRIPLET": "x64-linux-release"
       },

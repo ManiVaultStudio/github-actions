@@ -145,7 +145,7 @@ runs:
           if ($env:GITHUB_REPOSITORY -eq "ManiVaultStudio/core") {
             $toolchainFile = Join-Path "${{ github.action_path }}" "/../CMakeSupport/gha_vcpkg_toolchain.cmake"
             $projectInclude = "-DCMAKE_PROJECT_INCLUDE=$toolchainFile"
-          else {
+          } else {
             $projectInclude = ""
           }
           cmake --preset ${{ inputs.vcpkg-preset }} -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release "$projectInclude"

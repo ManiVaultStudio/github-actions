@@ -142,8 +142,13 @@ runs:
           $env:SEVEN_ZIP_EXECUTABLE = $sevenZip
           $buildDir = Join-Path "${{ github.workspace }}" "build"
           $installDir = Join-Path $buildDir "install"
-          $toolchainFile = Join-Path "${{ github.action_path }}" "/../CMakeSupport/gha_vcpkg_toolchain.cmake"
-          cmake --preset ${{ inputs.vcpkg-preset }} -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PROJECT_INCLUDE=$toolchainFile"
+          if ($env:GITHUB_REPOSITORY -eq "ManiVaultStudio/core") {
+            $toolchainFile = Join-Path "${{ github.action_path }}" "/../CMakeSupport/gha_vcpkg_toolchain.cmake"
+            $projectInclude = "-DCMAKE_PROJECT_INCLUDE=$toolchainFile"
+          else {
+            $projectInclude = ""
+          }
+          cmake --preset ${{ inputs.vcpkg-preset }} -S . -B $buildDir "-DMV_INSTALL_DIR=$installDir" -DCMAKE_BUILD_TYPE=Release "$projectInclude"
    
       - name: Upload vcpkg install log on failure
         if: failure()

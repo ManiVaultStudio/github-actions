@@ -1,0 +1,59 @@
+name: "Sentry upload steps"
+description: "Encapsulate composite run steps that upload pdbs to the ManiVault sentry server"
+# reference https://docs.github.com/en/free-pro-team@latest/actions/creating-actions/creating-a-composite-run-steps-action
+inputs:
+  sentry-upload:
+    description: "Whether to upload program database (and associated) files to Sentry"
+    required: true
+  sentry-url:
+    description: "pass secrets.LKEB_SENTRY_URL"
+    required: true
+  sentry-org:
+    description: "pass secrets.LKEB_SENTRY_ORG"
+    required: true
+  sentry-project:
+    description: "pass secrets.LKEB_SENTRY_PROJECT"
+    required: true
+  sentry-auth-token:
+    description: "pass secrets.LKEB_SENTRY_AUTH_TOKEN"
+    required: true
+  sentry-root:
+    description: "Sentry search root"
+    required: false
+    default: ""
+runs:
+  using: "composite"
+  steps:
+    - name: Install Sentry CLI
+      if: ${{ inputs.sentry-upload }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        curl -sSfL https://sentry.io/get-cli/ | bash
+    
+        if [ -x "/usr/local/bin/sentry-cli" ]; then
+          echo "/usr/local/bin" >> "$GITHUB_PATH"
+        fi
+        if [ -x "$HOME/.sentry-cli/bin/sentry-cli" ]; then
+          echo "$HOME/.sentry-cli/bin" >> "$GITHUB_PATH"
+        fi
+        
+    - name: Verify Sentry CLI installation
+      if: ${{ inputs.sentry-upload }}
+      shell: bash
+      run: |
+        which sentry-cli || true
+        sentry-cli --version
+        
+    - name: Upload matching PDBs to Sentry
+      if: ${{ inputs.sentry-upload }}
+      continue-on-error: true
+      shell: bash
+      env:
+        SENTRY_URL:         ${{ inputs['sentry-url'] }}
+        SENTRY_ORG:         ${{ inputs['sentry-org'] }}
+        SENTRY_PROJECT:     ${{ inputs['sentry-project'] }}
+        SENTRY_AUTH_TOKEN:   ${{ inputs['sentry-auth-token'] }}
+      run: |
+        bash "$GITHUB_WORKSPACE/sentry/upload_pdbs.sh" "${{ inputs.sentry-root }}"
+        

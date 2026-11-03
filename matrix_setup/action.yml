@@ -27,7 +27,7 @@ runs:
   - name: Get common matrix  
     uses: actions/checkout@v6
     with:
-      repository: ManiVaultStudio/github-actions
+      repository: ManiVaultStudio/github-actions@feature/vcpkg_artifactory
       ref: main
       path: matrix
       fetch-depth: 1

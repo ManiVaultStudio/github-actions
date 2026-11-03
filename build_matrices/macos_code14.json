@@ -2,7 +2,7 @@
     {
         "name": "Macos_xcode14",
         "os": "macos-13",
-        "preset": "macos-xcode16-release",
+        "preset": "macos-xcode14-release",
         "xcode": "14.3"
     }
 ]

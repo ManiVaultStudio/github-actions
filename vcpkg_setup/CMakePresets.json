@@ -59,11 +59,22 @@
       }
     },
     {
+      "name": "macos-xcode14-release",
+      "displayName": "macOS Xcode 14.3 Release (arm64)",
+      "inherits": "vcpkg-base",
+      "generator": "Ninja",
+      "cacheVariables": {
+          "VCPKG_TARGET_TRIPLET": "arm64-osx-release"
+      },
+      "environment": {
+        "OpenMP_ROOT": "/opt/homebrew/opt/libomp"
+      }
+    },
+    {
       "name": "macos-xcode15-release",
       "displayName": "macOS Xcode 15 Release (arm64)",
       "inherits": "vcpkg-base",
       "generator": "Ninja",
-      "architecture": "arm64",
       "cacheVariables": {
           "VCPKG_TARGET_TRIPLET": "arm64-osx-release"
       },
@@ -76,7 +87,6 @@
       "displayName": "macOS Xcode 16 Release (arm64)",
       "inherits": "vcpkg-base",
       "generator": "Ninja",
-      "architecture": "arm64",
       "cacheVariables": {
           "VCPKG_TARGET_TRIPLET": "arm64-osx-release"
       },

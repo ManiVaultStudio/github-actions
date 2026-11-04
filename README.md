@@ -1,3 +1,5 @@
+# In progress: migrating to vcpkg
+
 # common_actions
 GitHub actions that can be reused in other hdps repos for CI or other purposes.
 

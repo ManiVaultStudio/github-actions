@@ -18,7 +18,7 @@ runs:
       - name: Setup default vcpkg settings
         shell: pwsh
         run: |
-          echo "Running on runner: $env:RUNNER_NAME with os: $env:RUNNER_OS"
+          echo "Running on preset: ${{ inputs.vcpkg-preset }} with os: $env:RUNNER_OS"
           $presetsFile = Join-Path "${{ github.workspace }}" "CMakePresets.json"
           $configFile = Join-Path "${{ github.workspace }}" "vcpkg-configuration.json"
           $defaultPresetsFile = Join-Path "${{ github.action_path }}" "/../vcpkg_setup/CMakePresets.json"

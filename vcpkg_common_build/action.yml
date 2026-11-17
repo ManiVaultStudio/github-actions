@@ -98,18 +98,7 @@ runs:
       #    }
 
       # TODO inject the dependencies from mv_deps.toml into the vcpkg.json manifest
-      # The vcpkg.json may have to be created if there are no other dependencies
-
-      # vcpkg automatically resolves ports under ./ports based on vcpkg-configuration.json
-      #- name: Run vcpkg install
-      #  shell: pwsh
-      #  env:
-      #    VCPKG_KEEP_ENV_VARS: "PYTHON3_EXECUTABLE;SEVEN_ZIP_EXECUTABLE"
-      #    VCPKG_BINARY_SOURCES: "clear;http,${{ inputs.vcpkg-artifactory-url }}/{name}/{version}/{triplet}/{sha},readwrite,Authorization: Bearer ${{ inputs.vcpkg-artifactory-token }}" 
-      #    VCPKG_FEATURE_FLAGS: "versions,registries"
-      #  run: |
-      #    $portsDir = Join-Path "${{ github.workspace }}" "ports"
-      #    vcpkg --debug install --overlay-ports=$portsDir         
+      # The vcpkg.json may have to be created if there are no other dependencies      
 
       - name: Install build dependencies (Linux)
         shell: bash

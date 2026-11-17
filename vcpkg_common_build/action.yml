@@ -60,7 +60,7 @@ runs:
             $python = Join-Path $env:pythonLocation "bin" "python3"
           }
           Add-Content -Path $env:GITHUB_ENV -Value "PYTHON3_EXECUTABLE=$python"
-          echo ${{ github.workspace }}\.vcpkg\ >> $GITHUB_PATH
+          echo ${{ github.workspace }}\.vcpkg\ >> $env:GITHUB_PATH
           echo "VCPKG_FEATURE_FLAGS=registries" >> $env:GITHUB_ENV
 # $config_path = Join-Path ${{ github.workspace }} test registry-tester vcpkg-configuration.json
 # echo "VCPKG_CONFIG_FILE=$config-path" >> $env:GITHUB_ENV

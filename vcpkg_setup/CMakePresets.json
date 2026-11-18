@@ -18,6 +18,7 @@
       "architecture": "x64",
 			"cacheVariables": {
 				"VCPKG_TARGET_TRIPLET": "x64-windows-release",
+        "VCPKG_HOST_TRIPLET": "x64-windows",
 				"CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL"
 			}
     },
@@ -29,6 +30,7 @@
       "architecture": "x64",
 			"cacheVariables": {
 				"VCPKG_TARGET_TRIPLET": "x64-windows-release",
+        "VCPKG_HOST_TRIPLET": "x64-windows",
 				"CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL"
 			}
     },
@@ -38,7 +40,8 @@
       "inherits": "vcpkg-base",
       "generator": "Ninja",
       "cacheVariables": {
-          "VCPKG_TARGET_TRIPLET": "x64-linux-release"
+          "VCPKG_TARGET_TRIPLET": "x64-linux-release",
+          "VCPKG_HOST_TRIPLET": "x64-linux"
       },
       "environment": {
         "CC": "gcc-11",
@@ -51,7 +54,8 @@
       "inherits": "vcpkg-base",
       "generator": "Ninja",
       "cacheVariables": {
-          "VCPKG_TARGET_TRIPLET": "x64-linux-release"
+          "VCPKG_TARGET_TRIPLET": "x64-linux-release",
+          "VCPKG_HOST_TRIPLET": "x64-linux"
       },
       "environment": {
         "CC": "gcc-13",
@@ -64,7 +68,8 @@
       "inherits": "vcpkg-base",
       "generator": "Ninja",
       "cacheVariables": {
-          "VCPKG_TARGET_TRIPLET": "arm64-osx-release"
+          "VCPKG_TARGET_TRIPLET": "arm64-osx-release",
+          "VCPKG_HOST_TRIPLET": "arm64-osx"
       },
       "environment": {
         "OpenMP_ROOT": "/opt/homebrew/opt/libomp"
@@ -76,7 +81,8 @@
       "inherits": "vcpkg-base",
       "generator": "Ninja",
       "cacheVariables": {
-          "VCPKG_TARGET_TRIPLET": "arm64-osx-release"
+          "VCPKG_TARGET_TRIPLET": "arm64-osx-release",
+          "VCPKG_HOST_TRIPLET": "arm64-osx"
       },
       "environment": {
         "OpenMP_ROOT": "/opt/homebrew/opt/libomp"
@@ -88,7 +94,8 @@
       "inherits": "vcpkg-base",
       "generator": "Ninja",
       "cacheVariables": {
-          "VCPKG_TARGET_TRIPLET": "arm64-osx-release"
+          "VCPKG_TARGET_TRIPLET": "arm64-osx-release",
+          "VCPKG_HOST_TRIPLET": "arm64-osx"
       },
       "environment": {
         "OpenMP_ROOT": "/opt/homebrew/opt/libomp"

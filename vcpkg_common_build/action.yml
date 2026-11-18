@@ -136,6 +136,9 @@ runs:
           $buildDir = Join-Path "${{ github.workspace }}" "build"
           $installDir = Join-Path $buildDir "install"
           echo "Processing $env:GITHUB_REPOSITORY"
+          $sevenZip = (Get-Command 7z).Source
+          echo "7z at $sevenZip"
+          $env:SEVEN_ZIP_EXECUTABLE = $sevenZip
           if ($env:GITHUB_REPOSITORY -ne "ManiVaultStudio/core") {
             $toolchainFile = Join-Path "${{ github.action_path }}" "/../CMakeSupport/gha_vcpkg_toolchain.cmake"
             $projectInclude = "-DCMAKE_PROJECT_INCLUDE=$toolchainFile"

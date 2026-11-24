@@ -134,7 +134,7 @@ runs:
           VCPKG_KEEP_ENV_VARS: "PYTHON3_EXECUTABLE;SEVEN_ZIP_EXECUTABLE"
           VCPKG_FEATURE_FLAGS: "versions,registries"
         run: |
-          $env:VCPKG_BINARY_SOURCES = "${{ $env.VCPKG_CACHE_STRING || format('clear;http,{0}/{{name}}/{{version}}/{{triplet}}/{{sha}},readwrite,Authorization: Bearer {1}', inputs.vcpkg-artifactory-url, inputs.vcpkg-artifactory-token) }}"
+          $env:VCPKG_BINARY_SOURCES = "${{ env.VCPKG_CACHE_STRING || format('clear;http,{0}/{{name}}/{{version}}/{{triplet}}/{{sha}},readwrite,Authorization: Bearer {1}', inputs.vcpkg-artifactory-url, inputs.vcpkg-artifactory-token) }}"
           echo "Using cache: $env:VCPKG_BINARY_SOURCES"
           $buildDir = Join-Path "${{ github.workspace }}" "build"
           $installDir = Join-Path $buildDir "install"

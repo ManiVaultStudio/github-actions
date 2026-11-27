@@ -32,9 +32,12 @@ runs:
       path: matrix
       fetch-depth: 1
 
+  # By providing a list of matrix ids either via an environment variable MATRIX_IDS
+  # or via the input, we can select a subset of the matrix files to be used. 
   - name: Get matrix from file  
     run: |
-        if [ -n "${{ inputs.matrix_ids }}" ]; then
+        TARGET_MATRICES="${MATRIX_IDS:-${{ inputs.matrix_ids }}}"
+        if [ -n "$TARGET_MATRICES" ]; then
           all_files=""
           for jfile in ""${{ inputs.matrix_ids }}""; do all_files+=" matrix/build_matrices/$jfile.json"; done
           echo "matrix is composed of $all_files"

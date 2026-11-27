@@ -40,7 +40,7 @@ runs:
         echo "Using matrix ids: $TARGET_MATRICES"
         if [ -n "$TARGET_MATRICES" ]; then
           all_files=""
-          for jfile in ""${{ inputs.matrix_ids }}""; do all_files+=" matrix/build_matrices/$jfile.json"; done
+          for jfile in "$TARGET_MATRICES"; do all_files+=" matrix/build_matrices/$jfile.json"; done
           echo "matrix is composed of $all_files"
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
           echo "$(jq -s '[.[][]]' $all_files)" >> $GITHUB_OUTPUT

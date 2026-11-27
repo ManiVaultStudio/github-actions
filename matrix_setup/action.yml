@@ -37,6 +37,7 @@ runs:
   - name: Get matrix from file  
     run: |
         TARGET_MATRICES="${MATRIX_IDS:-${{ inputs.matrix_ids }}}"
+        echo "Using matrix ids: $TARGET_MATRICES"
         if [ -n "$TARGET_MATRICES" ]; then
           all_files=""
           for jfile in ""${{ inputs.matrix_ids }}""; do all_files+=" matrix/build_matrices/$jfile.json"; done

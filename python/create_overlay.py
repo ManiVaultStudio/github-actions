@@ -137,13 +137,36 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog="create_overlay")
-    parser.add_argument(
-        "--toolchain",
-        help=(
-            "A path to a toolchain file used by CMAKE_PROJECT_INCLUDE - needed to"
-            " couple mv-core scripts"
-        ),
-    )
-    args = parser.parse_args()
-    main(args)
+  """_summary_
+ The script creates vcpkg overlays for a CI repo build initiation
+
+ For each ManiVault internal dependency of repo defined in the mv_deps.toml
+ a vcpkg overlay port is created to allow vcpkg based CMake building.
+
+ 1.) Creating the overlay port - 
+   a) Each ManiVault Internally Dependent Repo (MVIDR) is cloned into a subdirectory
+     ./external/<repo-name>
+   b) For each MVIDR a subdirectory in ./ports/<package-name>/portfile.cmake
+     is created that builds the dependency. The template above is used.
+   c) Since the MVIDR may have it's own The vcpkg.json manifest for the dependency is placed in the portfile directory
+
+ 2.) CMake configuring a CI repo
+
+   When the build runs the ABI SHA will be created for each dependency and if
+   already available in the cache the cached will be used. Otherwise the dependency
+   will be built using the port and the result cached.
+   For all repos apart from the core an extra toolchain file must be provided 
+   that ensures the core CMake utilities are available. That toolchain file
+   is in gha_vcpkg_toolchain.cmake
+
+"""
+  parser = argparse.ArgumentParser(prog="create_overlay")
+  parser.add_argument(
+      "--toolchain",
+      help=(
+          "A path to a toolchain file used by CMAKE_PROJECT_INCLUDE - needed to"
+          " couple mv-core scripts"
+      ),
+  )
+  args = parser.parse_args()
+  main(args)

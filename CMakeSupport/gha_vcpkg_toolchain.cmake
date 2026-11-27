@@ -18,7 +18,7 @@ if(NOT TARGET ManiVault::Core)
   find_package(ManiVault COMPONENTS Core CONFIG QUIET)
 
   # Add the core cmake scripts - need this on the CI with vcpkg
-  # Note the core is called mv-core (due tocore being a vcpkg reserved name)
+  # Note the core is called mv-core (due to core being a vcpkg reserved name)
   # TODO find a better mechanism
 
   message(STATUS "ManiVault found flag: ${ManiVault_FOUND}")
